@@ -13,6 +13,7 @@ export default async function Index() {
       createClient();
       return true;
     } catch (e) {
+      console.log(e);
       return false;
     }
   };
