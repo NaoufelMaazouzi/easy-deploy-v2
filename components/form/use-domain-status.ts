@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import { fetcher } from "@/lib/utils";
 import { DomainResponse, DomainVerificationStatusProps } from "@/lib/types";
 
