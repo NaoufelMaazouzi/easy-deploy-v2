@@ -1,19 +1,15 @@
 import BlurImage from "@/components/blur-image";
 import { placeholderBlurhash, random } from "@/lib/utils";
-import { Post, Site } from "@prisma/client";
+// import { Post, Site } from "@prisma/client";
 import { BarChart, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
-export default function PostCard({
-  data,
-}: {
-  data: Post & { site: Site | null };
-}) {
-  const url = `${data.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`;
+export default function PostCard({ data }: any) {
+  // const url = `${data.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`;
 
   return (
     <div className="relative rounded-lg border border-stone-200 pb-10 shadow-md transition-all hover:shadow-xl dark:border-stone-700 dark:hover:border-white">
-      <Link
+      {/* <Link
         href={`/post/${data.id}`}
         className="flex flex-col overflow-hidden rounded-lg"
       >
@@ -55,7 +51,7 @@ export default function PostCard({
         >
           {url} ↗
         </a>
-      </div>
+      </div> */}
     </div>
   );
 }
