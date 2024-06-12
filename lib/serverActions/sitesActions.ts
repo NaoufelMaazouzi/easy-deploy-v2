@@ -18,7 +18,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 // import { formSchema } from "@/app/(dashboard)/createSite/siteSchema";
 // import { Client } from "@upstash/qstash";
 import { generateObject } from "ai";
-import { formSchema } from "@/app/(protected)/(dashboard)/createSite/siteSchema";
+import { formSchema } from "@/app/(dashboard)/createSite/siteSchema";
 import { SafeParseReturnType } from "zod";
 import { createClient } from "@/utils/supabase/server";
 

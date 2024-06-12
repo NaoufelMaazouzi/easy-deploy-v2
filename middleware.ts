@@ -2,7 +2,10 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const url = request.nextUrl;
+  const searchParams = url.searchParams.toString();
+  const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
+  return await updateSession(request, path);
 }
 
 export const config = {
