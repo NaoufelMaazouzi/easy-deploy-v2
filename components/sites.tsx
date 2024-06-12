@@ -1,24 +1,44 @@
-// import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-// import prisma from "@/lib/prisma";
+"use client";
+
 import SiteCard from "./site-card";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
-export default async function Sites({ limit }: { limit?: number }) {
-  // const session = await getSession();
-  // console.log("AAAAA", session);
+export default function Sites({ limit }: { limit?: number }) {
+  const [allSites, setAllSites] = useState<any>([]);
+  const supabase = createClient();
 
-  // if (!session) {
-  //   redirect("/login");
-  // }
-  // const sites = await prisma.site.findMany({
-  //   orderBy: {
-  //     createdAt: "asc",
-  //   },
-  //   ...(limit ? { take: limit } : {}),
-  // });
+  const fetchData = async () => {
+    const { data: test, error } = await supabase
+      .from("sites")
+      .select("*")
+      .order("created_at", { ascending: true })
+      .limit(limit || 100);
+    setAllSites(test);
+  };
 
-  return (
+  useEffect(() => {
+    fetchData();
+    supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "sites" },
+        (payload) => {
+          fetchData();
+        }
+      )
+      .subscribe();
+  }, []);
+
+  return allSites.length > 0 ? (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {allSites.map((site: Sites) => (
+        <SiteCard key={site.id} data={site} />
+      ))}
+    </div>
+  ) : (
     <div className="mt-20 flex flex-col items-center space-x-4">
       <h1 className="font-cal text-4xl">No Sites Yet</h1>
       <Image
