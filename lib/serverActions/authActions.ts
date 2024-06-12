@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 export const signInWithOAuth = async (provider: "google" | "github") => {
   const supabase = createClient();
   const origin = headers().get("origin");
+  console.log("EGFGGEGE", `${origin}/auth/callback`);
   const { error, data } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
