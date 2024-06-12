@@ -1,32 +1,41 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
 import Sites from "@/components/sites";
 import PlaceholderCard from "@/components/placeholder-card";
 import CreateSiteButton from "@/components/create-site-button";
 import CreateSiteModal from "@/components/modal/create-site";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 
 export default async function AllSites({ params }: { params: { id: string } }) {
   const supabase = createClient();
+  const [allTest, setAllTest] = useState<any>([]);
+  const fetchData = async () => {
+    const { data: test, error } = await supabase.from("test").select("*");
+    setAllTest(test);
+  };
 
-  const { data: test, error } = await supabase.from("test").select("*");
-
-  const channels = supabase
-    .channel("custom-all-channel")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "test" },
-      (payload) => {
-        console.log("Change received!", payload);
-      }
-    )
-    .subscribe();
+  useEffect(() => {
+    fetchData();
+    supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "test" },
+        (payload) => {
+          console.log("Change received!", payload);
+          fetchData();
+        }
+      )
+      .subscribe();
+  }, []);
 
   return (
     <div className="flex max-w-screen-xl flex-col space-y-12 p-8">
       <div className="flex flex-col space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="font-cal text-3xl font-bold dark:text-white">
-            All Sites {test?.map((value) => <li>{value.name}</li>)}
+            All Sites {allTest?.map((value: any) => <li>{value.name}</li>)}
           </h1>
           <CreateSiteButton />
         </div>
