@@ -2,21 +2,20 @@ import { unstable_cache } from "next/cache";
 import { serialize } from "next-mdx-remote/serialize";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
 import { createClient } from "@/utils/supabase/client";
-import { ensureArray } from ".";
 
 const supabase = createClient();
 
 export async function getAllSites() {
   let query = supabase.from("sites_without_users").select("*");
 
-  const { data, error } = await query.single();
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error getAllSites site:", error);
-    return null;
+    return [];
   }
 
-  return ensureArray(data);
+  return data;
 }
 
 const fetchSite = async (subdomain: string | null, domain: string) => {
@@ -126,7 +125,7 @@ const fetchPages = async (
 
   if (error) {
     console.error("Error fetching pages:", error);
-    return null;
+    return [];
   }
 
   return data;

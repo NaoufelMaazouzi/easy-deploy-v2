@@ -105,14 +105,3 @@ export const getSubdomain = (url: string) => {
   // If no subdomain is found or the string does not end with a valid domain, return null
   return null;
 };
-
-export const ensureArray = (input: any) => {
-  // Check if the input is already an array
-  if (Array.isArray(input)) {
-    return input;
-  }
-  // If it's not an array, transform it into an array
-  else {
-    return [input];
-  }
-};

@@ -47,7 +47,7 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   const allSites = await getAllSites();
   const allPaths = allSites
-    ?.map(({ subdomain, customDomain }) => [
+    .map(({ subdomain, customDomain }) => [
       subdomain && {
         domain: `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
       },
