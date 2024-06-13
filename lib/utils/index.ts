@@ -74,3 +74,45 @@ export const formatLocationAddress = (city: any) => {
   }
   return formattedAddress;
 };
+
+export const getSubdomain = (url: string) => {
+  // Remove "http://", "https://" and everything after the first "/" (if present)
+  let domain = url.replace(/^https?:\/\//, "").split("/")[0];
+
+  // Remove the port if present
+  domain = domain.split(":")[0];
+
+  // Split by dots
+  const parts = domain.split(".");
+
+  // Special case for "localhost"
+  if (parts[0] === "localhost" || parts.slice(-1)[0] === "localhost") {
+    if (parts.length > 1) {
+      return parts.slice(0, -1).join(".");
+    } else {
+      return null; // no subdomain for localhost without a prefix
+    }
+  }
+
+  // Get the dynamic root domain
+  const rootDomain = parts.slice(-2).join(".");
+
+  // Check if we have a subdomain
+  if (parts.length > 2) {
+    return parts.slice(0, parts.length - 2).join(".");
+  }
+
+  // If no subdomain is found or the string does not end with a valid domain, return null
+  return null;
+};
+
+export const ensureArray = (input: any) => {
+  // Check if the input is already an array
+  if (Array.isArray(input)) {
+    return input;
+  }
+  // If it's not an array, transform it into an array
+  else {
+    return [input];
+  }
+};

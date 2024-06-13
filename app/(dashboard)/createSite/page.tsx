@@ -108,7 +108,6 @@ export default function CreateSitePage() {
   const contactPhone = watch("contactPhone");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("OOOOOO", formSchema.safeParse(values));
     if (!formSchema.safeParse(values).success) {
       return toast.error("Les données entrées ne sont pas correctes");
     }
