@@ -11,20 +11,19 @@ export async function POST(req: Request) {
     const body = await req.json();
     const decodedBody = JSON.parse(decodeBase64(body.body));
     const content = decodedBody.choices[0].message.content;
-    console.log("CONTENNNNT", content, typeof content);
     if (content) {
       const parsedObj = JSON.parse(content);
-      console.log("parsedObjjjjjjj", parsedObj);
       const { service, content: generatedContent } = parsedObj;
       const supabase = createClient();
-      console.log("UUUUUUUUUUUUUUU", service.toLowerCase(), generatedContent);
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("pages")
         .update({ content: generatedContent, contentGenerated: true })
         .eq("service", service.toLowerCase())
-        .eq("contentGenerated", false)
-        .select();
-      console.log("OKKKKKKKKKK", data, error);
+        .eq("contentGenerated", false);
+      const { data, error: errorRpc } = await supabase.rpc(
+        "update_pages_content_with_city"
+      );
+      console.log("update_pages_content_with_city", data, errorRpc);
       if (error) {
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
