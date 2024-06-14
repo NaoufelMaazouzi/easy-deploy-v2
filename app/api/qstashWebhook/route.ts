@@ -1,3 +1,4 @@
+import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 const decodeBase64 = (base64: string) => {
@@ -10,18 +11,30 @@ export async function POST(req: Request) {
     const body = await req.json();
     const decodedBody = JSON.parse(decodeBase64(body.body));
     const content = decodedBody.choices[0].message.content;
-
-    console.log("Content:", content);
-
-    return NextResponse.json({
-      message: "Data processed successfully",
-      content,
-    });
+    if (content) {
+      const { service, content: generatedContent } = content;
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("pages")
+        .update({ content: generatedContent, contentGenerated: true })
+        .eq("service", service)
+        .eq("contentGenerated", false);
+      if (error) {
+        return NextResponse.json(
+          { message: "Error updating pages Qstash webhook", error },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json({
+        message: "Data processed successfully",
+        content,
+      });
+    }
   } catch (error) {
     console.error("Error processing the request:", error);
     return NextResponse.json(
       { message: "Internal Server Error", error },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

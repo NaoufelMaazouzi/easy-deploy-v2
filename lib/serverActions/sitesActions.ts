@@ -12,7 +12,7 @@
 // import { put } from "@vercel/blob";
 import { Client } from "@upstash/qstash";
 import { customAlphabet } from "nanoid";
-import { formatLocationAddress } from "@/lib/utils";
+import { createServiceCityObjects, formatLocationAddress } from "@/lib/utils";
 import { z } from "@/lib/utils/fr-zod";
 import axios from "axios";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -42,13 +42,20 @@ export async function createSite(data: z.infer<typeof formSchema>) {
         .select();
       const typedCreatedSite = createdSite as Sites[];
       if (typedCreatedSite?.length && !createdSiteError) {
-        generatedPages(data, typedCreatedSite[0].id);
-        return "okkkkkk";
-        // const generatedPages = createServiceCityObjects(
-        //   parsed.data,
-        //   typedCreatedSite[0].id
-        // );
-        // await supabase.from("pages").insert(generatedPages);
+        const generatedPages = createServiceCityObjects(
+          parsed.data,
+          typedCreatedSite[0].id
+        );
+        const { error: createdPagesError } = await supabase
+          .from("pages")
+          .insert(generatedPages);
+        if (createdPagesError) {
+          throw new Error("Erreur: Impossible de créer les pages");
+        }
+        generatedServicesContent(data.services);
+        return "Site créé avec succès !";
+      } else {
+        throw new Error("Erreur: Impossible de créer le site");
       }
     } else if (parsed.error) {
       throw new Error("Erreur: les données ne sont pas bien formatées");
@@ -173,17 +180,12 @@ export async function generateServices(input: string) {
   }
 }
 
-export async function generatedPages(data: FormSchema, siteId: number) {
+export function generatedServicesContent(services: Services[]) {
   try {
-    // const supabase = createClient();
-    // const generatedPages = createServiceCityObjects(data, siteId);
-    // setTimeout(async () => {
-    //   await supabase.from("pages").insert(generatedPages);
-    // }, 20000);
     const client = new Client({
       token: process.env.QSTASH_TOKEN || "",
     });
-    data.services.map((service: Services) => {
+    services.map((service: Services) => {
       client.publishJSON({
         url: "https://api.perplexity.ai/chat/completions",
         headers: {
