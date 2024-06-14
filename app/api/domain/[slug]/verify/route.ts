@@ -12,7 +12,7 @@ export async function GET(
 ) {
   const domain = decodeURIComponent(params.slug);
   let status: DomainVerificationStatusProps = "Valid Configuration";
-
+  console.log("domain", domain);
   const [domainJson, configJson] = await Promise.all([
     getDomainResponse(domain),
     getConfigResponse(domain),
