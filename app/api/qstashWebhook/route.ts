@@ -11,6 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const decodedBody = JSON.parse(decodeBase64(body.body));
     const content = decodedBody.choices[0].message.content;
+    console.log("EEEE", content, typeof content);
     if (content) {
       const { service, content: generatedContent } = content;
       const supabase = createClient();
