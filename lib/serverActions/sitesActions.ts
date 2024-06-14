@@ -35,6 +35,11 @@ export async function createSite(data: z.infer<typeof formSchema>) {
       z.infer<typeof formSchema>
     > = formSchema.safeParse(data);
     const supabase = createClient();
+    // console.log(
+    //   convertToValidJsonString(
+    //     "{'service': 'Menuiserie', 'content': 'Bienvenue chez nos experts en menuiserie à $ville. Nous proposons des services sur-mesure pour tous vos besoins en matière de menuiserie intérieure et extérieure. Que ce soit pour la fabrication et la pose de portes, fenêtres, volets, escaliers, placards, ou encore pour la rénovation de votre parquet, notre équipe de menuisiers qualifiés est à votre disposition. Nous travaillons avec des matériaux de qualité, tels que le bois, l'aluminium et le PVC, pour vous garantir des réalisations durables et esthétiques. Nous sommes fiers de notre savoir-faire artisanal et de notre expérience de plusieurs années dans le domaine de la menuiserie à $ville. Faites-nous confiance pour donner une seconde vie à votre intérieur et à votre extérieur.'}"
+    //   )
+    // );
     if (parsed.success && parsed.data) {
       const { data: createdSite, error: createdSiteError } = await supabase
         .from("sites")
@@ -49,6 +54,13 @@ export async function createSite(data: z.infer<typeof formSchema>) {
         const { error: createdPagesError } = await supabase
           .from("pages")
           .insert(generatedPages);
+        // const { data: pagesUpdated, error: pagesUpdatedError } = await supabase
+        //   .from("pages")
+        //   .update({ content: "test", contentGenerated: true })
+        //   .eq("service", "peinture")
+        //   .eq("contentGenerated", false)
+        //   .select();
+        // console.log("OKKKKKKKKKK", pagesUpdated, pagesUpdatedError);
         if (createdPagesError) {
           throw new Error("Erreur: Impossible de créer les pages");
         }
@@ -61,6 +73,7 @@ export async function createSite(data: z.infer<typeof formSchema>) {
       throw new Error("Erreur: les données ne sont pas bien formatées");
     }
   } catch (error) {
+    console.log(error);
     throw new Error("Erreur lors de la création du site");
   }
 }
@@ -197,11 +210,11 @@ export async function generatedServicesContent(services: Services[]) {
             {
               role: "system",
               content:
-                "Tu es un expert dans le SEO et dans le copywriting pour bien se classer dans les moteurs de recheche. Tu dois toujours me répondre seulement un objet au format JSON, voici sa structure: {'service': 'Peinture', 'content': 'Nous somme des experts en peinture à $ville'}.",
+                'Tu es un expert dans le SEO et dans le copywriting pour bien se classer dans les moteurs de recheche. Tu dois toujours me répondre seulement un objet au format JSON, voici sa structure: {"service": "Peinture", "content": "Nous somme des experts en peinture à $ville"}.',
             },
             {
               role: "user",
-              content: `Génère en français un texte pour le service: ${service.name}. Je veux que tu mettes beaucoup de détails dans le texte pour dire que nous sommes des experts dans ce service. Tu dois toujours place la variable '$ville' dans le texte au moins 2 fois pour que je puisse la modifier plus tard. Voici un exemple de l'objet que j'attends pour le service 'plomberie': {'service': 'Plomberie', 'content': 'Nous somme des experts en plomberie à $ville'} `,
+              content: `Génère en français un texte pour le service: ${service.name}. Je veux que tu mettes beaucoup de détails dans le texte pour dire que nous sommes des experts dans ce service. Tu dois toujours place la variable '$ville' dans le texte au moins 2 fois pour que je puisse la modifier plus tard. Voici un exemple de l'objet que j'attends pour le service 'plomberie': {"service": "Plomberie", "content": "Nous somme des experts en plomberie à $ville"} `,
             },
           ],
         },
