@@ -180,7 +180,7 @@ export async function generateServices(input: string) {
   }
 }
 
-export function generatedServicesContent(services: Services[]) {
+export async function generatedServicesContent(services: Services[]) {
   try {
     const client = new Client({
       token: process.env.QSTASH_TOKEN || "",
