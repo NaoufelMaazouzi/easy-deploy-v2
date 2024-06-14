@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, ChangeEvent } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Location } from "@/app/(dashboard)/createSite/page";
 import { autocompleteSearch } from "@/lib/serverActions/sitesActions";
 import { Input } from "../ui/input";
 import { UseFieldArrayRemove } from "react-hook-form";

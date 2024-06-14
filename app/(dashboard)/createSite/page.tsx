@@ -46,17 +46,6 @@ import {
 } from "@/components/ui/tooltip";
 import { PhoneInput } from "@/components/phone-input";
 
-export interface Location {
-  uniqueId: string;
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-export interface Services {
-  name: string;
-}
-
 export default function CreateSitePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

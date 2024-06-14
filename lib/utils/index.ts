@@ -108,3 +108,36 @@ export const getSubdomainAndDomain = (url: string) => {
   // If no subdomain is found or the string does not end with a valid domain, return null for subdomain
   return { subdomain: null, domain: rootDomain };
 };
+// type Location = z.infer<typeof locationSchema>;
+// type Service = { name: string };
+
+export const createServiceCityObjects = (
+  data: FormSchema,
+  siteId: number
+): Pages[] => {
+  const { services, mainActivityCity, secondaryActivityCities } = data;
+  const allCities = [mainActivityCity, ...secondaryActivityCities];
+
+  const serviceCityObjects: Pages[] = services.flatMap((service: any) =>
+    allCities.map((city) => {
+      // Remove parentheses and their content from city name
+      const cleanedCityName = city.name.replace(/\s*\(.*?\)\s*/g, "").trim();
+      const serviceNameWithCity = `${service.name} ${cleanedCityName}`;
+
+      // Create slug by replacing spaces with hyphens and converting to lowercase
+      const slug = serviceNameWithCity.replace(/\s+/g, "-").toLowerCase();
+
+      return {
+        title: serviceNameWithCity,
+        h1: serviceNameWithCity,
+        published: false,
+        description: serviceNameWithCity,
+        content: "",
+        slug: slug,
+        site_id: siteId,
+      };
+    })
+  );
+
+  return serviceCityObjects;
+};

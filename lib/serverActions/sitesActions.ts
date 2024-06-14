@@ -10,8 +10,9 @@
 //   validDomainRegex,
 // } from "@/lib/utils/domains";
 // import { put } from "@vercel/blob";
+import { Client } from "@upstash/qstash";
 import { customAlphabet } from "nanoid";
-import { formatLocationAddress, getBlurDataURL } from "@/lib/utils";
+import { formatLocationAddress } from "@/lib/utils";
 import { z } from "@/lib/utils/fr-zod";
 import axios from "axios";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -28,18 +29,32 @@ const nanoid = customAlphabet(
 ); // 7-character random string
 
 export async function createSite(data: z.infer<typeof formSchema>) {
-  // const formData = Object.fromEntries(data);
-  const parsed: SafeParseReturnType<
-    z.infer<typeof formSchema>,
-    z.infer<typeof formSchema>
-  > = formSchema.safeParse(data);
-  const supabase = createClient();
-  if (parsed.error) {
-    console.log(parsed.error);
+  try {
+    const parsed: SafeParseReturnType<
+      z.infer<typeof formSchema>,
+      z.infer<typeof formSchema>
+    > = formSchema.safeParse(data);
+    const supabase = createClient();
+    if (parsed.success && parsed.data) {
+      const { data: createdSite, error: createdSiteError } = await supabase
+        .from("sites")
+        .insert(parsed.data)
+        .select();
+      const typedCreatedSite = createdSite as Sites[];
+      if (typedCreatedSite?.length && !createdSiteError) {
+        generatedPages(data, typedCreatedSite[0].id);
+        return "okkkkkk";
+        // const generatedPages = createServiceCityObjects(
+        //   parsed.data,
+        //   typedCreatedSite[0].id
+        // );
+        // await supabase.from("pages").insert(generatedPages);
+      }
+    } else if (parsed.error) {
+      throw new Error("Erreur: les données ne sont pas bien formatées");
+    }
+  } catch (error) {
     throw new Error("Erreur lors de la création du site");
-  } else if (parsed.success) {
-    const { data, error } = await supabase.from("sites").insert(parsed.data);
-    console.log("INSERTEEEED", data, error);
   }
 }
 
@@ -155,6 +170,45 @@ export async function generateServices(input: string) {
   } catch (error) {
     console.log(error);
     throw new Error("Erreur lors de la génération avec l'IA.");
+  }
+}
+
+export async function generatedPages(data: FormSchema, siteId: number) {
+  try {
+    // const supabase = createClient();
+    // const generatedPages = createServiceCityObjects(data, siteId);
+    // setTimeout(async () => {
+    //   await supabase.from("pages").insert(generatedPages);
+    // }, 20000);
+    const client = new Client({
+      token: process.env.QSTASH_TOKEN || "",
+    });
+    data.services.map((service: Services) => {
+      client.publishJSON({
+        url: "https://api.perplexity.ai/chat/completions",
+        headers: {
+          Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        },
+        body: {
+          model: "mixtral-8x7b-instruct",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Tu es un expert dans le SEO et dans le copywriting pour bien se classer dans les moteurs de recheche. Tu dois toujours me répondre seulement un objet au format JSON, voici sa structure: {'service': 'Peinture', 'content': 'Nous somme des experts en peinture à $ville'}.",
+            },
+            {
+              role: "user",
+              content: `Génère en français un texte pour le service: ${service.name}. Je veux que tu mettes beaucoup de détails dans le texte pour dire que nous sommes des experts dans ce service. Tu dois toujours place la variable '$ville' dans le texte au moins 2 fois pour que je puisse la modifier plus tard. Voici un exemple de l'objet que j'attends pour le service 'plomberie': {'service': 'Plomberie', 'content': 'Nous somme des experts en plomberie à $ville'} `,
+            },
+          ],
+        },
+        callback: `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/api/qstashWebhook`,
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    throw new Error("Erreur lors de la génération de services avec l'IA.");
   }
 }
 
