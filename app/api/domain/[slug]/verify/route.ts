@@ -17,6 +17,8 @@ export async function GET(
     getDomainResponse(domain),
     getConfigResponse(domain),
   ]);
+  console.log("domainJson", domainJson);
+  console.log("configJson", configJson);
 
   if (domainJson?.error?.code === "not_found") {
     // domain not found on Vercel project
@@ -30,6 +32,7 @@ export async function GET(
   } else if (!domainJson.verified) {
     status = "Pending Verification";
     const verificationJson = await verifyDomain(domain);
+    console.log("verificationJson", verificationJson);
 
     // domain was just verified
     if (verificationJson && verificationJson.verified) {
