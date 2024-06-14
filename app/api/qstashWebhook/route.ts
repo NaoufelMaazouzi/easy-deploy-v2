@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         .update({ content: generatedContent, contentGenerated: true })
         .eq("service", service)
         .eq("contentGenerated", false);
-      console.log(data);
+      console.log("MMMMMM", data, error);
       if (error) {
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
