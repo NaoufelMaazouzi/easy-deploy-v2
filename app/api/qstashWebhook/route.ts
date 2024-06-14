@@ -14,12 +14,14 @@ export async function POST(req: Request) {
     if (content) {
       const { service, content: generatedContent } = content;
       const supabase = createClient();
+      console.log("UUUUUUUUUUUUUUU", service, generatedContent);
       const { data, error } = await supabase
         .from("pages")
         .update({ content: generatedContent, contentGenerated: true })
         .eq("service", service)
-        .eq("contentGenerated", false);
-      console.log("MMMMMM", data, error);
+        .eq("contentGenerated", false)
+        .select();
+      console.log("OKKKKKKKKKK", data, error);
       if (error) {
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
