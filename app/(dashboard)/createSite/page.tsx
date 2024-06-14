@@ -461,7 +461,9 @@ export default function CreateSitePage() {
                         value={inputServices.name}
                         placeholder="Peinture"
                         onChange={(e) =>
-                          setInputServices({ name: e.target.value })
+                          setInputServices({
+                            name: e.target.value.toLowerCase(),
+                          })
                         }
                       />
                       <Button

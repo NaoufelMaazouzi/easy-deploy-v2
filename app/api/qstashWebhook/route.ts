@@ -17,11 +17,11 @@ export async function POST(req: Request) {
       console.log("parsedObjjjjjjj", parsedObj);
       const { service, content: generatedContent } = parsedObj;
       const supabase = createClient();
-      console.log("UUUUUUUUUUUUUUU", service, generatedContent);
+      console.log("UUUUUUUUUUUUUUU", service.toLowerCase(), generatedContent);
       const { data, error } = await supabase
         .from("pages")
         .update({ content: generatedContent, contentGenerated: true })
-        .eq("service", service)
+        .eq("service", service.toLowerCase())
         .eq("contentGenerated", false)
         .select();
       console.log("OKKKKKKKKKK", data, error);
