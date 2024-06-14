@@ -35,11 +35,6 @@ export async function createSite(data: z.infer<typeof formSchema>) {
       z.infer<typeof formSchema>
     > = formSchema.safeParse(data);
     const supabase = createClient();
-    // console.log(
-    //   convertToValidJsonString(
-    //     "{'service': 'Menuiserie', 'content': 'Bienvenue chez nos experts en menuiserie à $ville. Nous proposons des services sur-mesure pour tous vos besoins en matière de menuiserie intérieure et extérieure. Que ce soit pour la fabrication et la pose de portes, fenêtres, volets, escaliers, placards, ou encore pour la rénovation de votre parquet, notre équipe de menuisiers qualifiés est à votre disposition. Nous travaillons avec des matériaux de qualité, tels que le bois, l'aluminium et le PVC, pour vous garantir des réalisations durables et esthétiques. Nous sommes fiers de notre savoir-faire artisanal et de notre expérience de plusieurs années dans le domaine de la menuiserie à $ville. Faites-nous confiance pour donner une seconde vie à votre intérieur et à votre extérieur.'}"
-    //   )
-    // );
     if (parsed.success && parsed.data) {
       const { data: createdSite, error: createdSiteError } = await supabase
         .from("sites")
@@ -54,13 +49,6 @@ export async function createSite(data: z.infer<typeof formSchema>) {
         const { error: createdPagesError } = await supabase
           .from("pages")
           .insert(generatedPages);
-        // const { data: pagesUpdated, error: pagesUpdatedError } = await supabase
-        //   .from("pages")
-        //   .update({ content: "test", contentGenerated: true })
-        //   .eq("service", "peinture")
-        //   .eq("contentGenerated", false)
-        //   .select();
-        // console.log("OKKKKKKKKKK", pagesUpdated, pagesUpdatedError);
         if (createdPagesError) {
           throw new Error("Erreur: Impossible de créer les pages");
         }

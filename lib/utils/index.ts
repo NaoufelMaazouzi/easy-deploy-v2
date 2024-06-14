@@ -137,6 +137,7 @@ export const createServiceCityObjects = (
         site_id: siteId,
         service: service.name,
         contentGenerated: false,
+        city: city.name,
       };
     })
   );

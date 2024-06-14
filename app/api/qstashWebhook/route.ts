@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       const supabase = createClient();
       const { error } = await supabase
         .from("pages")
-        .update({ content: generatedContent, contentGenerated: true })
+        .update({ content: generatedContent })
         .eq("service", service.toLowerCase())
         .eq("contentGenerated", false);
       const { data, error: errorRpc } = await supabase.rpc(
