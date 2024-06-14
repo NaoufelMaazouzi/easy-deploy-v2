@@ -11,9 +11,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const decodedBody = JSON.parse(decodeBase64(body.body));
     const content = decodedBody.choices[0].message.content;
-    console.log("EEEE", content, typeof content);
     if (content) {
-      const { service, content: generatedContent } = content;
+      const jsonString = content.replace(/'/g, '"');
+      const parsedObj = JSON.parse(jsonString);
+      const { service, content: generatedContent } = parsedObj;
       const supabase = createClient();
       console.log("UUUUUUUUUUUUUUU", service, generatedContent);
       const { data, error } = await supabase
