@@ -56,6 +56,7 @@ export async function generateStaticParams() {
       },
     ])
     .filter(Boolean);
+  console.log(allPaths);
   return allPaths;
 }
 
