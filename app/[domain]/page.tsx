@@ -14,7 +14,10 @@ export async function generateMetadata({
   params: { domain: string; slug: string };
 }) {
   const domain = decodeURIComponent(params.domain);
-  const siteData = await getSiteData(domain);
+  let siteData;
+  if (domain !== "images" && !domain.endsWith(".png")) {
+    siteData = await getSiteData(domain);
+  }
   if (!siteData) {
     return null;
   }
@@ -66,9 +69,11 @@ export default async function SiteHomePage({
   params: { domain: string };
 }) {
   const domain = decodeURIComponent(params.domain);
-  const data = await getSiteData(domain);
-
-  if (!data) {
+  let siteData;
+  if (domain !== "images" && !domain.endsWith(".png")) {
+    siteData = await getSiteData(domain);
+  }
+  if (!siteData) {
     notFound();
   }
 

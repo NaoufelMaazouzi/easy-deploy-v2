@@ -75,7 +75,7 @@ export const formatLocationAddress = (city: any) => {
   return formattedAddress;
 };
 
-export const getSubdomain = (url: string) => {
+export const getSubdomainAndDomain = (url: string) => {
   // Remove "http://", "https://" and everything after the first "/" (if present)
   let domain = url.replace(/^https?:\/\//, "").split("/")[0];
 
@@ -88,9 +88,9 @@ export const getSubdomain = (url: string) => {
   // Special case for "localhost"
   if (parts[0] === "localhost" || parts.slice(-1)[0] === "localhost") {
     if (parts.length > 1) {
-      return parts.slice(0, -1).join(".");
+      return { subdomain: parts.slice(0, -1).join("."), domain: "localhost" };
     } else {
-      return null; // no subdomain for localhost without a prefix
+      return { subdomain: null, domain: "localhost" }; // no subdomain for localhost without a prefix
     }
   }
 
@@ -99,9 +99,12 @@ export const getSubdomain = (url: string) => {
 
   // Check if we have a subdomain
   if (parts.length > 2) {
-    return parts.slice(0, parts.length - 2).join(".");
+    return {
+      subdomain: parts.slice(0, parts.length - 2).join("."),
+      domain: rootDomain,
+    };
   }
 
-  // If no subdomain is found or the string does not end with a valid domain, return null
-  return null;
+  // If no subdomain is found or the string does not end with a valid domain, return null for subdomain
+  return { subdomain: null, domain: rootDomain };
 };

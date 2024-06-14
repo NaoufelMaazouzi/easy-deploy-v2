@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
-import { getSubdomain } from "./lib/utils";
+import { getSubdomainAndDomain } from "./lib/utils";
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -9,7 +9,7 @@ export async function middleware(req: NextRequest) {
   let hostname = req.headers
     .get("host")!
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
-  const subdomain = getSubdomain(hostname);
+  const { subdomain } = getSubdomainAndDomain(hostname);
 
   // special case for Vercel preview deployment URLs
   if (

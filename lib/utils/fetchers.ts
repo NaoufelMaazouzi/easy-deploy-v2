@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { serialize } from "next-mdx-remote/serialize";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
 import { createClient } from "@/utils/supabase/client";
+import { getSubdomainAndDomain } from ".";
 
 const supabase = createClient();
 
@@ -18,11 +19,11 @@ export async function getAllSites() {
   return data;
 }
 
-const fetchSite = async (subdomain: string | null, domain: string) => {
+const fetchSite = async (subdomain: string | null, domain?: string | null) => {
   let query = supabase.from("sites_without_users").select("*");
   if (subdomain) {
     query = query.eq("subdomain", subdomain);
-  } else {
+  } else if (domain) {
     query = query.eq("customDomain", domain);
   }
 
@@ -37,13 +38,18 @@ const fetchSite = async (subdomain: string | null, domain: string) => {
 };
 
 export async function getSiteData(domain: string) {
-  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
-    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
-    : null;
-
+  let { subdomain, domain: newDomain } = getSubdomainAndDomain(domain);
+  console.log(
+    "TEEEEEST",
+    subdomain,
+    newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN ? newDomain : null
+  );
   return await unstable_cache(
     async () => {
-      return await fetchSite(subdomain, domain);
+      return await fetchSite(
+        subdomain,
+        newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN ? newDomain : null
+      );
     },
     [`${domain}-metadata`],
     {
@@ -174,9 +180,7 @@ export async function getPageData(
   slug: string,
   customDomain?: string
 ) {
-  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
-    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
-    : null;
+  const { subdomain } = getSubdomainAndDomain(domain);
 
   return await unstable_cache(
     async () => {
