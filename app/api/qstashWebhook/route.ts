@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     if (content) {
       const parsedObj = JSON.parse(content);
       const { service, content: generatedContent } = parsedObj;
+      console.log("service: ", service, "generatedContent: ", generatedContent);
       const supabase = createClient();
       const { error } = await supabase
         .from("pages")
@@ -23,7 +24,6 @@ export async function POST(req: Request) {
       const { data, error: errorRpc } = await supabase.rpc(
         "update_pages_content_with_city"
       );
-      console.log("update_pages_content_with_city", data, errorRpc);
       if (error) {
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
