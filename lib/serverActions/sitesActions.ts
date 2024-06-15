@@ -173,7 +173,7 @@ export async function generateServices(input: string) {
       mode: "json",
     });
     if (result?.result) {
-      return result.result.map((name) => ({ name }));
+      return result.result.map((name) => ({ name: name.toLowerCase() }));
     }
   } catch (error) {
     console.log(error);
