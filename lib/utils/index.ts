@@ -2,7 +2,6 @@ import { clsx, type ClassValue } from "clsx";
 import Swal, { SweetAlertIcon } from "sweetalert2";
 import { twMerge } from "tailwind-merge";
 import { customAlphabet } from "nanoid";
-import { randomBytes } from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -174,6 +173,11 @@ export const customNanoid = customAlphabet(
   7
 ); // 7-character random string
 
-export const randomString = () => {
-  return randomBytes(20).toString("hex");
+export const randomString = (length = 10) => {
+  const characters = "0123456789abcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters[Math.floor(Math.random() * characters.length)];
+  }
+  return result;
 };
