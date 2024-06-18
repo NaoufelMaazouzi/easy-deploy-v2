@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { fetchPagesBySubdomain, getPageData } from "@/lib/utils/fetchers";
 import BlurImage from "@/components/blur-image";
-import { placeholderBlurhash, toDateString } from "@/lib/utils";
+import { placeholderBlurhash } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -66,32 +66,20 @@ export default async function SitePostPage({
     notFound();
   }
 
-  const {
-    h1,
-    createdAt,
-    title,
-    description,
-    customDomain,
-    imageBlurhash,
-    image,
-    site,
-  } = pageData;
+  const { h1, title, description, customDomain, content } = pageData;
 
   return (
     <>
       <div className="flex flex-col items-center justify-center">
         <div className="m-auto w-full text-center md:w-7/12">
-          <p className="m-auto my-5 w-10/12 text-sm font-light text-stone-500 dark:text-stone-400 md:text-base">
-            {toDateString(createdAt)}
-          </p>
           <h1 className="mb-10 font-title text-3xl font-bold text-stone-800 dark:text-white md:text-6xl">
             {h1}
           </h1>
           <p className="text-md m-auto w-10/12 text-stone-600 dark:text-stone-400 md:text-lg">
-            {description}
+            {content}
           </p>
         </div>
-        <div className="my-8">
+        {/* <div className="my-8">
           <div className="relative inline-block h-8 w-8 overflow-hidden rounded-full align-middle md:h-12 md:w-12">
             {site?.user?.image ? (
               <BlurImage
@@ -109,7 +97,7 @@ export default async function SitePostPage({
           <div className="text-md ml-3 inline-block align-middle dark:text-white md:text-lg">
             by <span className="font-semibold">{site?.user?.name}</span>
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="relative m-auto mb-10 h-80 w-full max-w-screen-lg overflow-hidden md:mb-20 md:h-150 md:w-5/6 md:rounded-2xl lg:w-2/3">
         <BlurImage
@@ -118,8 +106,8 @@ export default async function SitePostPage({
           height={630}
           className="h-full w-full object-cover"
           placeholder="blur"
-          blurDataURL={imageBlurhash ?? placeholderBlurhash}
-          src={image ?? "/placeholder.png"}
+          blurDataURL={placeholderBlurhash}
+          src={"/placeholder.png"}
         />
       </div>
 

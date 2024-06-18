@@ -14,7 +14,6 @@ export async function POST(req: Request) {
     if (content) {
       const parsedObj = JSON.parse(content);
       const { service, content: generatedContent } = parsedObj;
-      console.log("service: ", service, "generatedContent: ", generatedContent);
       const supabase = createClient();
       const { error } = await supabase
         .from("pages")

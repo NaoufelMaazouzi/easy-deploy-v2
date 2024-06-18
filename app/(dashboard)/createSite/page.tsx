@@ -45,10 +45,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PhoneInput } from "@/components/phone-input";
+import { CreateSiteResult } from "@/lib/utils/types";
+import { showAlert } from "@/lib/utils";
 
 export default function CreateSitePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingCreateSite, setLoadingCreateSite] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
   const [inputServices, setInputServices] = useState({ name: "" });
   const [selectedServices, setSelectedServices] = useState([{ name: "" }]);
@@ -97,14 +100,24 @@ export default function CreateSitePage() {
   const contactPhone = watch("contactPhone");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoadingCreateSite(true);
     if (!formSchema.safeParse(values).success) {
+      setLoadingCreateSite(false);
       return toast.error("Les données entrées ne sont pas correctes");
     }
     const formData = new FormData();
     for (const [key, value] of Object.entries(values)) {
       formData.append(key, JSON.stringify(value));
     }
-    await createSite(values);
+    const { status, text, title, siteId }: CreateSiteResult =
+      await createSite(values);
+    showAlert(
+      status,
+      title,
+      text,
+      siteId ? () => router.push(`/site/${siteId}`) : null
+    );
+    setLoadingCreateSite(false);
   }
 
   useEffect(() => {
@@ -119,7 +132,7 @@ export default function CreateSitePage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setLoadingCities(true);
       const cities = await fetchCitiesInRadius(
         mainActivityCity.lat,
         mainActivityCity.lng,
@@ -130,12 +143,12 @@ export default function CreateSitePage() {
           (newCity: Location) => mainActivityCity.uniqueId !== newCity.uniqueId
         )
       );
-      setLoading(false);
+      setLoadingCities(false);
     };
     if (radius !== 0 && mainActivityCity.uniqueId) {
       fetchData().catch((error) => {
         console.error(error);
-        setLoading(false);
+        setLoadingCities(false);
       });
     } else {
       replaceSecondaryActivityCities([]);
@@ -421,9 +434,13 @@ export default function CreateSitePage() {
                 </div>
               )}
             />
-            {loading ? (
+            {loadingCities ? (
               <div className="flex items-center justify-center">
-                <ClipLoader color={"#3498db"} loading={loading} size={30} />
+                <ClipLoader
+                  color={"#3498db"}
+                  loading={loadingCities}
+                  size={30}
+                />
               </div>
             ) : (
               secondaryActivityCities.length > 0 && (
@@ -550,7 +567,12 @@ export default function CreateSitePage() {
             />
           </div>
 
-          <Button type="submit">Créer</Button>
+          <Button type="submit" disabled={loadingCreateSite}>
+            {loadingCreateSite && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {loadingCreateSite ? "Création..." : "Créer"}
+          </Button>
         </form>
       </Form>
     </div>

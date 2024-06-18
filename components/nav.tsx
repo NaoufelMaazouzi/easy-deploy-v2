@@ -89,12 +89,12 @@ export default function Nav({ children }: { children: ReactNode }) {
     if (segments[0] === "site" && id) {
       return [
         {
-          name: "Back to All Sites",
+          name: "Retour à tous les sites",
           href: "/sites",
           icon: <ArrowLeft width={18} />,
         },
         {
-          name: "Posts",
+          name: "Pages",
           href: `/site/${id}`,
           isActive: segments.length === 2,
           icon: <Newspaper width={18} />,
@@ -106,7 +106,7 @@ export default function Nav({ children }: { children: ReactNode }) {
           icon: <BarChart3 width={18} />,
         },
         {
-          name: "Settings",
+          name: "Paramètres",
           href: `/site/${id}/settings`,
           isActive: segments.includes("settings"),
           icon: <Settings width={18} />,

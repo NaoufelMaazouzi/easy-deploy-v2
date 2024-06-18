@@ -3,9 +3,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+const supabase = createClient();
 
 export const signInWithOAuth = async (provider: "google" | "github") => {
-  const supabase = createClient();
   const origin = headers().get("origin");
   const { error, data } = await supabase.auth.signInWithOAuth({
     provider,
@@ -24,7 +24,6 @@ export const signInWithOAuth = async (provider: "google" | "github") => {
 export const signInWithEmail = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const supabase = createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -42,7 +41,6 @@ export const signUpWithEmail = async (formData: FormData) => {
   const origin = headers().get("origin");
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const supabase = createClient();
 
   const { error } = await supabase.auth.signUp({
     email,

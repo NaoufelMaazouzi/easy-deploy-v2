@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getSiteData, getAllSites } from "@/lib/utils/fetchers";
+import { getSiteData, fetchSitesWithFilter } from "@/lib/utils/fetchers";
 
 import Banner from "../../components/Banner/index";
 import Features from "../../components/Work/index";
@@ -22,13 +22,13 @@ export async function generateMetadata({
     return null;
   }
 
-  const { title, description, name } = siteData;
+  const { description, name } = siteData;
 
   return {
     title: name,
     description,
     openGraph: {
-      title,
+      title: name,
       description,
     },
     twitter: {
@@ -48,7 +48,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const allSites = await getAllSites();
+  const allSites = await fetchSitesWithFilter("sites_without_users");
   const allPaths = allSites
     .flatMap(({ subdomain, customDomain }) => [
       subdomain &&

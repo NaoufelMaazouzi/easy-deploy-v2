@@ -6,6 +6,7 @@ import PageCard from "./page-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 export default async function Pages({
   siteId,
@@ -14,15 +15,17 @@ export default async function Pages({
   siteId?: string;
   limit?: number;
 }) {
-  const [allPages, setAllPages] = useState<any>([]);
+  const [allPages, setAllPages] = useState<PagesWithSitesValues[]>([]);
   const supabase = createClient();
 
   const fetchData = async () => {
-    const { data: test, error } = await supabase
-      .from("pages")
-      .select("*")
-      .order("created_at", { ascending: true });
-    setAllPages(test);
+    const { data, error } = await supabase
+      .from("pages_with_sites_values")
+      .select("*");
+    if (error) {
+      return toast.error("Erreur lors de la récupération des pages");
+    }
+    setAllPages(data);
   };
 
   useEffect(() => {
@@ -31,30 +34,17 @@ export default async function Pages({
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "pages" },
+        { event: "INSERT", schema: "public", table: "pages" },
         (payload) => {
           fetchData();
         }
       )
       .subscribe();
   }, []);
-  // const session = await getSession();
-  // if (!session?.user) {
-  //   redirect("/login");
-  // }
-  // const posts = await prisma.post.findMany({
-  //   orderBy: {
-  //     updatedAt: "desc",
-  //   },
-  //   include: {
-  //     site: true,
-  //   },
-  //   ...(limit ? { take: limit } : {}),
-  // });
 
   return allPages.length > 0 ? (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {allPages.map((page: any) => (
+      {allPages.map((page: PagesWithSitesValues) => (
         <PageCard key={page.id} data={page} />
       ))}
     </div>

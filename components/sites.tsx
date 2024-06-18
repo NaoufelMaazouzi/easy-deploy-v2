@@ -4,18 +4,22 @@ import SiteCard from "./site-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 export default function Sites({ limit }: { limit?: number }) {
   const [allSites, setAllSites] = useState<any>([]);
   const supabase = createClient();
 
   const fetchData = async () => {
-    const { data: test, error } = await supabase
+    const { data: sites, error } = await supabase
       .from("sites")
       .select("*")
       .order("created_at", { ascending: true })
       .limit(limit || 100);
-    setAllSites(test);
+    if (error) {
+      toast.error("Erreur lors de la récupération des sites");
+    }
+    setAllSites(sites);
   };
 
   useEffect(() => {

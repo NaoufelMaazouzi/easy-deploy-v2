@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
+import Swal, { SweetAlertIcon } from "sweetalert2";
 import { twMerge } from "tailwind-merge";
+import { customAlphabet } from "nanoid";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -143,4 +145,35 @@ export const createServiceCityObjects = (
   );
 
   return serviceCityObjects;
+};
+
+export const showAlert = (
+  icon: SweetAlertIcon,
+  title: string,
+  text: string,
+  callback: (() => void) | null
+) => {
+  Swal.fire({
+    icon,
+    title,
+    text,
+    timer: 1000,
+    timerProgressBar: true,
+    showConfirmButton: false,
+    willClose: () => {
+      if (callback) {
+        callback();
+      }
+    },
+  });
+};
+
+export const customNanoid = customAlphabet(
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  7
+); // 7-character random string
+
+export const randomString = () => {
+  const crypto = require("crypto");
+  return crypto.randomBytes(20).toString("hex");
 };

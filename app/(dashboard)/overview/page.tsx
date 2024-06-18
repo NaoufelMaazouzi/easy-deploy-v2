@@ -40,7 +40,7 @@ export default function Overview() {
 
       <div className="flex flex-col space-y-6">
         <h1 className="font-cal text-3xl font-bold dark:text-white">
-          Recent Posts
+          Pages récentes
         </h1>
         <Suspense
           fallback={

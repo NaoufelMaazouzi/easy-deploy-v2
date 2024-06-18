@@ -2,22 +2,25 @@ import { unstable_cache } from "next/cache";
 import { serialize } from "next-mdx-remote/serialize";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
 import { createClient } from "@/utils/supabase/client";
+import { createClient as createClientServer } from "@/utils/supabase/server";
+
 import { getSubdomainAndDomain } from ".";
+import { FilterType } from "./types";
 
 const supabase = createClient();
 
-export async function getAllSites() {
-  let query = supabase.from("sites_without_users").select("*");
+// export async function getAllSites() {
+//   let query = supabase.from("sites_without_users").select("*");
 
-  const { data, error } = await query;
+//   const { data, error } = await query;
 
-  if (error) {
-    console.error("Error getAllSites site:", error);
-    return [];
-  }
+//   if (error) {
+//     console.error("Error getAllSites site:", error);
+//     return [];
+//   }
 
-  return data;
-}
+//   return data;
+// }
 
 const fetchSite = async (subdomain: string | null, domain?: string | null) => {
   let query = supabase.from("sites_without_users").select("*");
@@ -39,17 +42,14 @@ const fetchSite = async (subdomain: string | null, domain?: string | null) => {
 
 export async function getSiteData(domain: string) {
   let { subdomain, domain: newDomain } = getSubdomainAndDomain(domain);
-  console.log(
-    "TEEEEEST",
-    subdomain,
-    newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN ? newDomain : null
-  );
   return await unstable_cache(
     async () => {
-      return await fetchSite(
-        subdomain,
-        newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN ? newDomain : null
-      );
+      return await fetchSingleSiteWithFilter("sites_without_users", [
+        { method: "eq", column: "subdomain", value: subdomain },
+        ...(newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN
+          ? [{ method: "eq", column: "newDomain", value: newDomain }]
+          : []),
+      ]);
     },
     [`${domain}-metadata`],
     {
@@ -110,33 +110,6 @@ export async function getSiteData(domain: string) {
 //   )();
 // }
 
-const fetchPages = async (
-  subdomain: string | null,
-  slug: string,
-  customDomain?: string | null
-) => {
-  let query = supabase
-    .from("pages_with_sites_values")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true);
-
-  if (subdomain) {
-    query = query.eq("subdomain", subdomain);
-  } else if (customDomain) {
-    query = query.eq("customDomain", customDomain);
-  }
-
-  const { data, error } = await query.single();
-
-  if (error) {
-    console.error("Error fetching pages:", error);
-    return [];
-  }
-
-  return data;
-};
-
 // const fetchAdjacentPages = async (
 //   subdomain: string | null,
 //   domain: string,
@@ -184,7 +157,21 @@ export async function getPageData(
 
   return await unstable_cache(
     async () => {
-      return await fetchPages(subdomain, slug, customDomain);
+      let query = supabase
+        .from("pages_with_sites_values")
+        .select("*")
+        .eq("slug", slug)
+        .eq("published", true);
+      if (subdomain) {
+        query.eq("subdomain", subdomain);
+      }
+      if (customDomain) {
+        query.eq("customDomain", customDomain);
+      }
+      const { data, error } = await query.single();
+      if (data && !error) {
+        return data;
+      }
     },
     [`${domain}-${slug}`],
     {
@@ -211,3 +198,126 @@ export const fetchPagesBySubdomain = async (subdomain?: string | null) => {
 
   return data;
 };
+
+// export async function fetchSiteById(id: string): Promise<Sites | null> {
+//   const supabase = createClient();
+//   let query = supabase.from("sites_without_users").select("*").eq("id", id);
+
+//   const { data, error } = await query;
+
+//   if (error) {
+//     console.error("Error fetchSiteById:", error);
+//     return null;
+//   }
+
+//   if (data && data.length > 0) {
+//     // Convertir le premier élément de data en Sites
+//     return data[0] as Sites;
+//   } else {
+//     return null;
+//   }
+// }
+
+export async function fetchSitesWithFilter(
+  viewName: string,
+  filters?: FilterType[]
+): Promise<Sites[] | []> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      query = query.filter(filter.column, filter.method as any, filter.value);
+    });
+  }
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetchSitesWithFilter:", error);
+    return [];
+  }
+
+  if (data && data.length > 0) {
+    return data as Sites[];
+  } else {
+    return [];
+  }
+}
+
+export async function fetchSingleSiteWithFilter(
+  viewName: string,
+  filters?: FilterType[]
+): Promise<Sites | null> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      query = query.filter(filter.column, filter.method as any, filter.value);
+    });
+  }
+  const { data, error } = await query.single();
+
+  if (error) {
+    console.error("Error fetchSingleSiteWithFilter:", error);
+    return null;
+  }
+
+  if (data) {
+    return data as Sites;
+  } else {
+    return null;
+  }
+}
+
+export async function fetchPagesWithFilter(
+  viewName: string,
+  filters?: FilterType[]
+): Promise<PagesWithSitesValues[] | []> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      query = query.filter(filter.column, filter.method as any, filter.value);
+    });
+  }
+  const { data, error } = await query.order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error fetchPagesWithFilter:", error);
+    return [];
+  }
+
+  if (data && data.length > 0) {
+    return data as PagesWithSitesValues[];
+  } else {
+    return [];
+  }
+}
+
+export async function fetchSinglePageWithFilter(
+  viewName: string,
+  filters?: FilterType[]
+): Promise<PagesWithSitesValues | null> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      query = query.filter(filter.column, filter.method as any, filter.value);
+    });
+  }
+  const { data, error } = await query.single();
+
+  if (error) {
+    console.error("Error fetchSinglePageWithFilter:", error);
+    return null;
+  }
+
+  if (data) {
+    return data as PagesWithSitesValues;
+  } else {
+    return null;
+  }
+}

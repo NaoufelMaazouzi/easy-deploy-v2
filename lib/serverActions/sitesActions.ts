@@ -11,7 +11,6 @@
 // } from "@/lib/utils/domains";
 // import { put } from "@vercel/blob";
 import { Client } from "@upstash/qstash";
-import { customAlphabet } from "nanoid";
 import { createServiceCityObjects, formatLocationAddress } from "@/lib/utils";
 import { z } from "@/lib/utils/fr-zod";
 import axios from "axios";
@@ -22,47 +21,73 @@ import { generateObject } from "ai";
 import { formSchema } from "@/app/(dashboard)/createSite/siteSchema";
 import { SafeParseReturnType } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { CreateSiteResult } from "../utils/types";
 
-const nanoid = customAlphabet(
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  7
-); // 7-character random string
-
-export async function createSite(data: z.infer<typeof formSchema>) {
+export async function createSite(
+  data: z.infer<typeof formSchema>
+): Promise<CreateSiteResult> {
   try {
     const parsed: SafeParseReturnType<
       z.infer<typeof formSchema>,
       z.infer<typeof formSchema>
     > = formSchema.safeParse(data);
-    const supabase = createClient();
-    if (parsed.success && parsed.data) {
-      const { data: createdSite, error: createdSiteError } = await supabase
-        .from("sites")
-        .insert(parsed.data)
-        .select();
-      const typedCreatedSite = createdSite as Sites[];
-      if (typedCreatedSite?.length && !createdSiteError) {
-        const generatedPages = createServiceCityObjects(
-          parsed.data,
-          typedCreatedSite[0].id
-        );
-        const { error: createdPagesError } = await supabase
-          .from("pages")
-          .insert(generatedPages);
-        if (createdPagesError) {
-          throw new Error("Erreur: Impossible de créer les pages");
-        }
-        generatedServicesContent(data.services);
-        return "Site créé avec succès !";
-      } else {
-        throw new Error("Erreur: Impossible de créer le site");
-      }
-    } else if (parsed.error) {
-      throw new Error("Erreur: les données ne sont pas bien formatées");
+
+    if (!parsed.success) {
+      return {
+        siteId: null,
+        status: "error",
+        title: "Oops",
+        text: "Les données ne sont pas bien formatées",
+      };
     }
+
+    const supabase = createClient();
+    const { data: createdSite, error: createdSiteError } = await supabase
+      .from("sites")
+      .insert(parsed.data)
+      .select();
+
+    if (createdSiteError || !createdSite?.length) {
+      return {
+        siteId: null,
+        status: "error",
+        title: "Oops",
+        text: "Impossible de créer le site",
+      };
+    }
+
+    const typedCreatedSite = createdSite as Sites[];
+    const siteId = typedCreatedSite[0].id;
+    const generatedPages = createServiceCityObjects(parsed.data, siteId);
+
+    const { error: createdPagesError } = await supabase
+      .from("pages")
+      .insert(generatedPages);
+
+    if (createdPagesError) {
+      return {
+        siteId: null,
+        status: "error",
+        title: "Oops",
+        text: "Impossible de créer les pages",
+      };
+    }
+
+    generatedServicesContent(data.services);
+    return {
+      siteId,
+      status: "success",
+      title: "Succès",
+      text: "Site créé avec succès",
+    };
   } catch (error) {
     console.log(error);
-    throw new Error("Erreur lors de la création du site");
+    return {
+      siteId: null,
+      status: "error",
+      title: "Oops",
+      text: "Erreur lors de la création du site",
+    };
   }
 }
 
@@ -71,7 +96,6 @@ export const getSiteFromPostId = async (postId: string) => {
 };
 
 export async function autocompleteSearch(queryObj: { query: string }) {
-  console.log(queryObj.query);
   if (!process.env.GEOAPIFY_API_KEY) {
     return new Response(
       "Missing GEOAPIFY_API_KEY. Don't forget to add that to your .env file.",

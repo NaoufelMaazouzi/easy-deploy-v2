@@ -1,19 +1,33 @@
-import CreatePostButton from "@/components/create-post-button";
+import CreatePageButton from "@/components/create-page-button";
 import Pages from "@/components/pages";
+import { createClient } from "@/utils/supabase/server";
+import { notFound } from "next/navigation";
 
 export default async function SitePages({
   params,
 }: {
   params: { id: string };
 }) {
-  // const url = `${data.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
+  const supabase = createClient();
+  const { data: site } = await supabase
+    .from("sites_with_users")
+    .select("*")
+    .eq("id", params.id)
+    .single();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!site || user?.id !== site.user_id) {
+    notFound();
+  }
 
   return (
     <>
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
           <h1 className="font-cal w-60 truncate text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
-            All Pages for
+            Pages du site {site?.name}
           </h1>
           {/* <a
             href={
@@ -28,7 +42,7 @@ export default async function SitePages({
             {url} ↗
           </a> */}
         </div>
-        <CreatePostButton />
+        <CreatePageButton />
       </div>
       <Pages siteId={decodeURIComponent(params.id)} />
     </>

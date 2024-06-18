@@ -56,3 +56,23 @@ export interface DomainVerificationResponse {
     reason: string;
   }[];
 }
+
+export type CreateSiteStatus = "error" | "success";
+export interface CreateSiteResult {
+  siteId: number | null;
+  status: CreateSiteStatus;
+  title: string;
+  text: string;
+}
+
+export interface updatePageResult {
+  status: CreateSiteStatus;
+  title: string;
+  text: string;
+}
+
+export type FilterType = {
+  method: string;
+  column: string;
+  value: any;
+};
