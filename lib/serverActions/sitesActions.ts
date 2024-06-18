@@ -36,7 +36,6 @@ export async function createSite(
       return {
         siteId: null,
         status: "error",
-        title: "Oops",
         text: "Les données ne sont pas bien formatées",
       };
     }
@@ -51,7 +50,6 @@ export async function createSite(
       return {
         siteId: null,
         status: "error",
-        title: "Oops",
         text: "Impossible de créer le site",
       };
     }
@@ -68,7 +66,6 @@ export async function createSite(
       return {
         siteId: null,
         status: "error",
-        title: "Oops",
         text: "Impossible de créer les pages",
       };
     }
@@ -77,7 +74,6 @@ export async function createSite(
     return {
       siteId,
       status: "success",
-      title: "Succès",
       text: "Site créé avec succès",
     };
   } catch (error) {
@@ -85,7 +81,6 @@ export async function createSite(
     return {
       siteId: null,
       status: "error",
-      title: "Oops",
       text: "Erreur lors de la création du site",
     };
   }

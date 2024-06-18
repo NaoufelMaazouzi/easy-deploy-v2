@@ -109,11 +109,9 @@ export default function CreateSitePage() {
     for (const [key, value] of Object.entries(values)) {
       formData.append(key, JSON.stringify(value));
     }
-    const { status, text, title, siteId }: CreateSiteResult =
-      await createSite(values);
+    const { status, text, siteId }: CreateSiteResult = await createSite(values);
     showAlert(
       status,
-      title,
       text,
       siteId ? () => router.push(`/site/${siteId}`) : null
     );

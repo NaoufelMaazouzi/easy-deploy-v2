@@ -66,14 +66,14 @@ export default function Editor({
             const formData = new FormData();
             formData.append("published", String(!data.published));
             startTransitionPublishing(async () => {
-              const { status, title, text }: updatePageResult =
+              const { status, text }: updatePageResult =
                 await updatePageMetadata(
                   formData,
                   data.id,
                   "published",
                   `Page ${data.published ? "dépubliée" : "publiée"} avec succès`
                 );
-              showAlert(status, title, text, null);
+              showAlert(status, text, null);
               setData((prev: PagesWithSitesValues) => ({
                 ...prev,
                 published: !prev.published,

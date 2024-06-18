@@ -16,7 +16,6 @@ export const updatePage = async (
   if (!user) {
     return {
       status: "error",
-      title: "Erreur",
       text: "Utilisateur non authentifié",
     };
   }
@@ -28,7 +27,6 @@ export const updatePage = async (
   if (!page || error) {
     return {
       status: "error",
-      title: "Erreur",
       text: "Page non trouvée",
     };
   }
@@ -53,13 +51,11 @@ export const updatePage = async (
       revalidateTag(`${page.customDomain}-${page.slug}`));
     return {
       status: "success",
-      title: "Succès",
       text: "Page modifiée avec succès",
     };
   } catch (error: any) {
     return {
       status: "error",
-      title: "Oops",
       text: error.message as string,
     };
   }
@@ -73,7 +69,6 @@ export const updatePageMetadata = withPostAuth(
     successText: string
   ): Promise<updatePageResult> => {
     const value = formData.get(key) as string;
-    console.log(page);
     try {
       // if (key === "image") {
       //   const file = formData.get("image") as File;
@@ -104,7 +99,6 @@ export const updatePageMetadata = withPostAuth(
       if (error) {
         return {
           status: "error",
-          title: "Erreur",
           text: "Erreur lors de la modification de la page",
         };
       }
@@ -124,20 +118,17 @@ export const updatePageMetadata = withPostAuth(
 
       return {
         status: "success",
-        title: "Succès",
         text: successText,
       };
     } catch (error: any) {
       if (error.code === "P2002") {
         return {
           status: "error",
-          title: "Erreur",
           text: "Ce nom est déjà utilisé",
         };
       } else {
         return {
           status: "error",
-          title: "Erreur",
           text: error.message as string,
         };
       }

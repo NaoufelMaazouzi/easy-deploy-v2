@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
-import Swal, { SweetAlertIcon } from "sweetalert2";
 import { twMerge } from "tailwind-merge";
 import { customAlphabet } from "nanoid";
+import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -148,24 +148,18 @@ export const createServiceCityObjects = (
 };
 
 export const showAlert = (
-  icon: SweetAlertIcon,
-  title: string,
+  status: "success" | "error",
   text: string,
   callback: (() => void) | null
 ) => {
-  Swal.fire({
-    icon,
-    title,
-    text,
-    timer: 1000,
-    timerProgressBar: true,
-    showConfirmButton: false,
-    willClose: () => {
-      if (callback) {
-        callback();
-      }
-    },
-  });
+  if (status === "success") {
+    toast.success(text);
+  } else {
+    toast.error(text);
+  }
+  if (callback) {
+    callback();
+  }
 };
 
 export const customNanoid = customAlphabet(
