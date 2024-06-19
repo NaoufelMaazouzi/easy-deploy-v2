@@ -47,18 +47,19 @@ export function withPostAuth(action: any) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) {
+
+    const { data: page, error } = await supabase
+      .from("pages_with_sites_values")
+      .select("*")
+      .eq("id", pageId)
+      .single();
+    if (!user || page.user_id !== user?.id) {
       return {
         status: "error",
         title: "Erreur",
         text: "Utilisateur non authentifié",
       };
     }
-    const { data: page, error } = await supabase
-      .from("pages_with_sites_values")
-      .select("*")
-      .eq("id", pageId)
-      .single();
 
     if (!page || error) {
       return {

@@ -21,7 +21,8 @@ export default async function Pages({
   const fetchData = async () => {
     const { data, error } = await supabase
       .from("pages_with_sites_values")
-      .select("*");
+      .select("*")
+      .eq("site_id", siteId);
     if (error) {
       return toast.error("Erreur lors de la récupération des pages");
     }
