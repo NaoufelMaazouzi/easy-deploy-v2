@@ -1,3 +1,4 @@
+import { isValidDomain } from "@/lib/utils";
 import { getSiteData } from "@/lib/utils/fetchers";
 import { headers } from "next/headers";
 import Image from "next/image";
@@ -8,7 +9,12 @@ export default async function NotFound() {
     .get("host")
     ?.replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
   let data;
-  if (domain !== "images" && !domain?.endsWith(".png")) {
+  if (
+    domain &&
+    domain !== "images" &&
+    !domain?.endsWith(".png") &&
+    isValidDomain(domain)
+  ) {
     data = await getSiteData(domain as string);
   }
 

@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import "../../styles/createdSites.css";
 import Navbar from "../../components/Navbar/index";
 import Footer from "../../components/Footer/Footer";
+import { isValidDomain } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -15,7 +16,11 @@ export async function generateMetadata({
 }): Promise<Metadata | null> {
   const domain = decodeURIComponent(params.domain);
   let data;
-  if (domain !== "images" && !domain.endsWith(".png")) {
+  if (
+    domain !== "images" &&
+    !domain.endsWith(".png") &&
+    isValidDomain(domain)
+  ) {
     data = await getSiteData(domain);
   }
   if (!data) {
@@ -24,6 +29,8 @@ export async function generateMetadata({
   const {
     name,
     description,
+    customDomain,
+    // faviconName,
     // image,
     // logo,
   } = data as Sites;
@@ -34,24 +41,31 @@ export async function generateMetadata({
     openGraph: {
       title: name || undefined,
       description,
-      // images: [image],
+      locale: "fr_FR",
+      images: [
+        "https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/sign/images/vtc.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvdnRjLndlYnAiLCJpYXQiOjE3MTg4MTAyOTAsImV4cCI6NDg0MDg3NDI5MH0.Yf1zhryWeIB5Xl-DpyCKGyBNsiVTqyBsi0F8InTX3rA&t=2024-06-19T15%3A18%3A10.214Z",
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: name || undefined,
       description,
-      // images: [image],
+      images: [
+        "https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/sign/images/vtc.webp?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvdnRjLndlYnAiLCJpYXQiOjE3MTg4MTAyOTAsImV4cCI6NDg0MDg3NDI5MH0.Yf1zhryWeIB5Xl-DpyCKGyBNsiVTqyBsi0F8InTX3rA&t=2024-06-19T15%3A18%3A10.214Z",
+      ],
       creator: "@vercel",
     },
-    // icons: [logo],
+    icons: [
+      "https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/sign/images/favicon-32x32.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvZmF2aWNvbi0zMngzMi5wbmciLCJpYXQiOjE3MTg4MDk5NTYsImV4cCI6NDg0MDg3Mzk1Nn0.SnhYmWXyr1SdBKjmfSsk51BT29VFWW2rX78iviGBwrQ&t=2024-06-19T15%3A12%3A36.708Z",
+    ],
     metadataBase: new URL(`https://${domain}`),
     // Optional: Set canonical URL to custom domain if it exists
-    // ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    //   data.customDomain && {
-    //     alternates: {
-    //       canonical: `https://${data.customDomain}`,
-    //     },
-    //   }),
+    ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+      customDomain && {
+        alternates: {
+          canonical: `https://${customDomain}`,
+        },
+      }),
   };
 }
 
@@ -64,7 +78,11 @@ export default async function SiteLayout({
 }) {
   const domain = decodeURIComponent(params.domain);
   let data;
-  if (domain !== "images" && !domain.endsWith(".png")) {
+  if (
+    domain !== "images" &&
+    !domain.endsWith(".png") &&
+    isValidDomain(domain)
+  ) {
     data = await getSiteData(domain);
   }
 

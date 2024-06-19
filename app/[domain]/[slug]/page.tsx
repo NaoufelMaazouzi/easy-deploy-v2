@@ -15,28 +15,29 @@ export async function generateMetadata({
     return null;
   }
 
-  const { title, description } = pageData;
+  const { title, description, customDomain } = pageData;
 
   return {
     title,
     description,
     openGraph: {
       title,
+      locale: "fr_FR",
       description,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      creator: "@vercel",
+      creator: "@vtc_dreux",
     },
     // Optional: Set canonical URL to custom domain if it exists
-    // ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    //   customDomain && {
-    //     alternates: {
-    //       canonical: `https://${customDomain}/${params.slug}`,
-    //     },
-    //   }),
+    ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+      customDomain && {
+        alternates: {
+          canonical: `https://${customDomain}/${params.slug}`,
+        },
+      }),
   };
 }
 

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +6,7 @@
 @import "slick-carousel/slick/slick-theme.css";
 
 * {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 html {
@@ -26,7 +26,12 @@ html:not([data-scroll="0"]) .navbar {
 }
 
 .card-b {
-  background: linear-gradient(180deg, #F8F6F6 0%, #F8F6F6 0.01%, rgba(248, 246, 246, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    #f8f6f6 0%,
+    #f8f6f6 0.01%,
+    rgba(248, 246, 246, 0) 100%
+  );
 }
 
 .ls-51 {
@@ -44,7 +49,7 @@ html:not([data-scroll="0"]) .navbar {
 }
 
 .footer-icons {
-  transition: .5s;
+  transition: 0.5s;
 }
 
 .footer-icons:hover {
@@ -52,11 +57,11 @@ html:not([data-scroll="0"]) .navbar {
 }
 
 .footer-icons:hover > .sepiaa {
-  filter: invert(100.10);
+  filter: invert(100.1);
 }
 
 .space-links {
-  transition: .3s;
+  transition: 0.3s;
 }
 
 .space-links:hover {
@@ -66,7 +71,7 @@ html:not([data-scroll="0"]) .navbar {
 .hover-underline {
   display: inline-flex;
   position: relative;
-  color: #DF6751;
+  color: #df6751;
   justify-content: center;
   align-items: center;
 }
@@ -79,9 +84,9 @@ html:not([data-scroll="0"]) .navbar {
   height: 1px;
   bottom: 0;
   left: 0;
-  background-color: #DF6751;
+  background-color: #df6751;
   transform-origin: bottom right;
-  transition: transform .25s ease-out;
+  transition: transform 0.25s ease-out;
 }
 
 .hover-underline:hover:after {
@@ -105,9 +110,6 @@ html:not([data-scroll="0"]) .navbar {
   transform: scale(1.1);
 }
 
-.par-87{
+.par-87 {
   padding-right: 87px;
 }
-
-
-

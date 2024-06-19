@@ -41,14 +41,17 @@ const fetchSite = async (subdomain: string | null, domain?: string | null) => {
 };
 
 export async function getSiteData(domain: string) {
-  let { subdomain, domain: newDomain } = getSubdomainAndDomain(domain);
+  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
+    : null;
   return await unstable_cache(
     async () => {
       return await fetchSingleSiteWithFilter("sites_without_users", [
-        { method: "eq", column: "subdomain", value: subdomain },
-        ...(newDomain !== process.env.NEXT_PUBLIC_ROOT_DOMAIN
-          ? [{ method: "eq", column: "newDomain", value: newDomain }]
-          : []),
+        {
+          method: "eq",
+          column: subdomain ? "subdomain" : "customDomain",
+          value: subdomain ? subdomain : domain,
+        },
       ]);
     },
     [`${domain}-metadata`],

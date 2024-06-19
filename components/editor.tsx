@@ -121,7 +121,6 @@ export default function Editor({
           }));
         }}
         onDebouncedUpdate={() => {
-          console.log(data);
           if (
             data.title === pageData.title &&
             data.description === pageData.description &&

@@ -175,3 +175,8 @@ export const randomString = (length = 10) => {
   }
   return result;
 };
+
+export const isValidDomain = (domain: string): boolean => {
+  const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]{1,63}\.)+[a-zA-Z]{2,6}$/;
+  return domainRegex.test(domain);
+};

@@ -7,7 +7,6 @@ import {
   generateServices,
 } from "@/lib/serverActions/sitesActions";
 import { toast } from "sonner";
-import va from "@vercel/analytics";
 import { useRouter } from "next/navigation";
 import DomainConfiguration from "@/components/form/domain-configuration";
 import { SearchBar } from "@/components/SearchBar/index";

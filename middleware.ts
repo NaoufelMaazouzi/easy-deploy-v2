@@ -11,21 +11,22 @@ export async function middleware(req: NextRequest) {
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
   const { subdomain } = getSubdomainAndDomain(hostname);
 
-  // special case for Vercel preview deployment URLs
+  // Special case for Vercel preview deployment URLs
   if (
     hostname.includes("---") &&
     hostname.endsWith(`.${process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`)
   ) {
-    hostname = `${hostname.split("---")[0]}.${
-      process.env.NEXT_PUBLIC_ROOT_DOMAIN
-    }`;
+    hostname = `${hostname.split("---")[0]}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
   }
 
   const searchParams = req.nextUrl.searchParams.toString();
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
-  const path = `${url.pathname}${
-    searchParams.length > 0 ? `?${searchParams}` : ""
-  }`;
+  const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
+
+  // Handle robots.txt request
+  if (url.pathname === "/robots.txt") {
+    return NextResponse.rewrite(new URL(`/robots.txt`, req.url));
+  }
 
   if (subdomain) {
     return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
@@ -40,9 +41,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - robots.txt
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
