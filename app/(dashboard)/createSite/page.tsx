@@ -272,7 +272,6 @@ export default function CreateSitePage() {
                             placeholder="domainePerso.com"
                             {...field}
                             autoCapitalize="off"
-                            pattern="[a-zA-Z0-9\-]+"
                           />
                         </FormControl>
                         <FormMessage />
