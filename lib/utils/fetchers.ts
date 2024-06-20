@@ -185,12 +185,21 @@ export async function getPageData(
   )();
 }
 
-export const fetchPagesBySubdomain = async (subdomain?: string | null) => {
+export const fetchPagesBySubdomain = async (
+  subdomain?: string | null,
+  domain?: string | null
+) => {
   const supabase = createClient();
   let query = supabase.from("pages_with_sites_values").select("*");
-
+  const isCustomDomain =
+    domain &&
+    !domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+    process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
   if (subdomain) {
     query = query.eq("subdomain", subdomain);
+  }
+  if (isCustomDomain) {
+    query = query.eq("customDomain", domain);
   }
 
   const { data, error } = await query;

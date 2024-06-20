@@ -9,10 +9,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headersList = headers();
   const host = headersList.get("host");
   let newSubdomain: string | null = null;
+  let domain: string | null = null;
+
   if (host) {
-    ({ subdomain: newSubdomain } = getSubdomainAndDomain(host));
+    ({ domain, subdomain: newSubdomain } = getSubdomainAndDomain(host));
   }
-  const allPages = await fetchPagesBySubdomain(newSubdomain);
+  const allPages = await fetchPagesBySubdomain(newSubdomain, domain);
   allPages
     .map(({ subdomain, customDomain, slug, updated_at }) => {
       return {
