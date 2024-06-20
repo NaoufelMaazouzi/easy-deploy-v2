@@ -193,7 +193,7 @@ export const fetchPagesBySubdomain = async (
   let query = supabase.from("pages_with_sites_values").select("*");
   const isCustomDomain =
     domain &&
-    !domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+    !domain.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
     process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
   if (subdomain) {
     query = query.eq("subdomain", subdomain);
