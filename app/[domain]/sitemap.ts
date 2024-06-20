@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (host) {
     ({ domain, subdomain: newSubdomain } = getSubdomainAndDomain(host));
   }
+  console.log("BBBBBBBBBBB", host, domain, newSubdomain);
   const allPages = await fetchPagesBySubdomain(newSubdomain, domain);
   allPages
     .map(({ subdomain, customDomain, slug, updated_at }) => {
