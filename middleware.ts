@@ -28,7 +28,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/robots.txt`, req.url));
   }
 
-  if (subdomain) {
+  if (
+    subdomain ||
+    !hostname.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+  ) {
     return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
   }
   return await updateSession(req, path);
