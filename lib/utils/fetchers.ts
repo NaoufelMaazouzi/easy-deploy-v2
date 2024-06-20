@@ -40,16 +40,17 @@ const fetchSite = async (subdomain: string | null, domain?: string | null) => {
   return data;
 };
 
-export async function getSiteData(domain: string) {
-  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
-    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
-    : null;
+export async function getSiteData(domain: string, isCustomDomain?: boolean) {
+  const { subdomain } = getSubdomainAndDomain(domain);
+  // const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+  //   ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
+  //   : null;
   return await unstable_cache(
     async () => {
       return await fetchSingleSiteWithFilter("sites_without_users", [
         {
           method: "eq",
-          column: subdomain ? "subdomain" : "customDomain",
+          column: subdomain && !isCustomDomain ? "subdomain" : "customDomain",
           value: subdomain ? subdomain : domain,
         },
       ]);

@@ -78,12 +78,16 @@ export default async function SiteLayout({
 }) {
   const domain = decodeURIComponent(params.domain);
   let data;
+  const isCustomDomain =
+    !domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+    process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
   if (
     domain !== "images" &&
     !domain.endsWith(".png") &&
     isValidDomain(domain)
   ) {
-    data = await getSiteData(domain);
+    data = await getSiteData(domain, isCustomDomain);
+    console.log("YYYYY", isCustomDomain, domain, data);
   }
 
   if (!data) {
@@ -91,13 +95,13 @@ export default async function SiteLayout({
   }
 
   // Optional: Redirect to custom domain if it exists
-  if (
-    domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    data.customDomain &&
-    process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true"
-  ) {
-    return redirect(`https://${data.customDomain}`);
-  }
+  // if (
+  //   domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+  //   data.customDomain &&
+  //   process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true"
+  // ) {
+  //   return redirect(`https://${data.subdomain}.${data.customDomain}`);
+  // }
 
   return (
     <html lang="en">
