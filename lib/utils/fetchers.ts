@@ -41,7 +41,7 @@ const fetchSite = async (subdomain: string | null, domain?: string | null) => {
 };
 
 export async function getSiteData(domain: string, isCustomDomain?: boolean) {
-  const { subdomain } = getSubdomainAndDomain(domain);
+  const { subdomain, domain: domainWithoutSub } = getSubdomainAndDomain(domain);
   // const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
   //   ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
   //   : null;
@@ -51,7 +51,7 @@ export async function getSiteData(domain: string, isCustomDomain?: boolean) {
         {
           method: "eq",
           column: subdomain && !isCustomDomain ? "subdomain" : "customDomain",
-          value: subdomain ? subdomain : domain,
+          value: subdomain && !isCustomDomain ? subdomain : domainWithoutSub,
         },
       ]);
     },
