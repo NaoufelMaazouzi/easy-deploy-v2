@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
 
   if (
     subdomain ||
-    !hostname.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+    !hostname.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
   ) {
     return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
   }
