@@ -32,12 +32,11 @@ export async function generateMetadata({
       creator: "@vtc_dreux",
     },
     // Optional: Set canonical URL to custom domain if it exists
-    ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-      customDomain && {
-        alternates: {
-          canonical: `https://${customDomain}/${params.slug}`,
-        },
-      }),
+    ...(customDomain && {
+      alternates: {
+        canonical: `https://${customDomain}/${params.slug}`,
+      },
+    }),
   };
 }
 

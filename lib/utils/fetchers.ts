@@ -187,7 +187,8 @@ export async function getPageData(
 
 export const fetchPagesBySubdomain = async (
   subdomain?: string | null,
-  domain?: string | null
+  domain?: string | null,
+  published?: boolean | null
 ) => {
   const supabase = createClient();
   let query = supabase.from("pages_with_sites_values").select("*");
@@ -200,6 +201,9 @@ export const fetchPagesBySubdomain = async (
   }
   if (isCustomDomain) {
     query = query.eq("customDomain", domain);
+  }
+  if (published) {
+    query = query.eq("published", published);
   }
 
   const { data, error } = await query;

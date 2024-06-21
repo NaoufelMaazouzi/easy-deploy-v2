@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSiteData } from "@/lib/utils/fetchers";
 import { fontMapper } from "@/styles/fonts";
 import { Metadata } from "next";
-
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "../../styles/createdSites.css";
 import Navbar from "../../components/Navbar/index";
 import Footer from "../../components/Footer/Footer";
@@ -60,12 +60,11 @@ export async function generateMetadata({
     ],
     metadataBase: new URL(`https://${domain}`),
     // Optional: Set canonical URL to custom domain if it exists
-    ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-      customDomain && {
-        alternates: {
-          canonical: `https://${customDomain}`,
-        },
-      }),
+    ...(customDomain && {
+      alternates: {
+        canonical: `https://${customDomain}`,
+      },
+    }),
   };
 }
 
@@ -110,6 +109,7 @@ export default async function SiteLayout({
         {children}
         <Footer />
       </body>
+      <GoogleAnalytics gaId="G-XYZ" />
     </html>
   );
 }
