@@ -50,7 +50,7 @@ export default function Uploader({
           {
             "max-w-screen-md": aspectRatio === "aspect-video",
             "max-w-xs": aspectRatio === "aspect-square",
-          },
+          }
         )}
       >
         <div
@@ -120,6 +120,7 @@ export default function Uploader({
           <img
             src={data[name] as string}
             alt="Preview"
+            title="Preview"
             className="h-full w-full rounded-md object-cover"
           />
         )}

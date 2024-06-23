@@ -113,7 +113,7 @@ export default function Editor({
       </div>
       <NovelEditor
         className="relative block"
-        defaultValue={data.content || undefined}
+        defaultValue={data.firstContent || undefined}
         onUpdate={(editor) => {
           setData((prev: any) => ({
             ...prev,
@@ -124,7 +124,7 @@ export default function Editor({
           if (
             data.title === pageData.title &&
             data.description === pageData.description &&
-            data.content === pageData.content
+            data.firstContent === pageData.firstContent
           ) {
             return;
           }

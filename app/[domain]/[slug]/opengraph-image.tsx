@@ -39,7 +39,7 @@ export default async function PostOG({
   }
 
   const clashData = await fetch(
-    new URL("@/styles/CalSans-SemiBold.otf", import.meta.url),
+    new URL("@/styles/CalSans-SemiBold.otf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
@@ -57,6 +57,7 @@ export default async function PostOG({
               tw="w-12 h-12 rounded-full mr-4"
               src={data.authorImage}
               alt={data.authorName}
+              title={data.authorName}
             />
             <p tw="text-xl font-medium text-gray-900">by {data.authorName}</p>
           </div>
@@ -64,6 +65,7 @@ export default async function PostOG({
             tw="mt-4 w-5/6 rounded-2xl border border-gray-200 shadow-md"
             src={data.image}
             alt={data.title}
+            title={data.title}
           />
         </div>
       </div>
@@ -78,6 +80,6 @@ export default async function PostOG({
         },
       ],
       emoji: "blobmoji",
-    },
+    }
   );
 }

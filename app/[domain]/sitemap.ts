@@ -27,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter(Boolean);
   return allPages.map(({ subdomain, customDomain, slug, updated_at }) => ({
     url: `https://${subdomain ? `${subdomain}.` : ""}${customDomain ? customDomain : process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${slug}`,
-    lastModified: new Date(updated_at).toISOString(),
+    lastModified: updated_at
+      ? new Date(updated_at).toISOString()
+      : new Date().toISOString(),
   }));
 }

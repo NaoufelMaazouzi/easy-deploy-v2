@@ -226,11 +226,11 @@ export async function generatedServicesContent(services: Services[]) {
             {
               role: "system",
               content:
-                'Tu es un expert dans le SEO et dans le copywriting pour bien se classer dans les moteurs de recheche. Tu dois toujours me répondre seulement un objet au format JSON, voici sa structure: {"service": "Peinture", "content": "Nous somme des experts en peinture à $ville"}.',
+                'Tu es un expert dans le SEO et dans le copywriting pour bien se classer dans les moteurs de recheche. Tu dois toujours me répondre seulement un objet au format JSON, voici sa structure: {"service": "Peinture", "firstContent": "Nous somme des experts en peinture à $ville", "secondContent": "Nous réalisons toute sorte de peintures à $ville"}.',
             },
             {
               role: "user",
-              content: `Génère en français un texte pour le service: ${service.name}. Je veux que tu mettes beaucoup de détails dans le texte pour dire que nous sommes des experts dans ce service. Tu dois toujours place la variable '$ville' dans le texte au moins 2 fois pour que je puisse la modifier plus tard. Voici un exemple de l'objet que j'attends pour le service 'plomberie': {"service": "Plomberie", "content": "Nous somme des experts en plomberie à $ville"} `,
+              content: `Génère en français un texte pour le service: ${service.name}. Je veux que tu mettes beaucoup de détails dans le texte pour dire que nous sommes des experts dans ce service. Tu dois toujours place la variable '$ville' dans le texte au moins 2 fois pour que je puisse la modifier plus tard, chaque texte (firstContent et secondContent) doit contenir au moins 200 mots. Voici un exemple de l'objet que j'attends pour le service 'plomberie': {"service": "Plomberie", "firstContent": "Nous somme des experts en plomberie à $ville", "secondContent": "Nous réalisons toute sorte de plomberie à $ville"} `,
             },
           ],
         },

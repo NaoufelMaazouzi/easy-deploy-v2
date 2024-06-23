@@ -189,7 +189,7 @@ export const fetchPagesBySubdomain = async (
   subdomain?: string | null,
   domain?: string | null,
   published?: boolean | null
-) => {
+): Promise<PagesWithSitesValues[] | []> => {
   const supabase = createClient();
   let query = supabase.from("pages_with_sites_values").select("*");
   const isCustomDomain =
@@ -212,8 +212,11 @@ export const fetchPagesBySubdomain = async (
     console.error("Error fetchPagesBySubdomain:", error);
     return [];
   }
-
-  return data;
+  if (data && data.length > 0) {
+    return data as PagesWithSitesValues[];
+  } else {
+    return [];
+  }
 };
 
 // export async function fetchSiteById(id: string): Promise<Sites | null> {

@@ -36,7 +36,7 @@ export const updatePage = async (
       .update({
         title: data.title,
         description: data.description,
-        content: data.content,
+        firstContent: data.firstContent,
       })
       .eq("id", data.id);
     revalidateTag(

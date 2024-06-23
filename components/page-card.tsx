@@ -59,6 +59,7 @@ export default function PageCard({ data }: { data: PagesWithSitesValues }) {
           ) : (
             <BlurImage
               alt={data.title ?? "Card thumbnail"}
+              title={data.title ?? "Card thumbnail"}
               width={500}
               height={400}
               className="h-full object-cover"

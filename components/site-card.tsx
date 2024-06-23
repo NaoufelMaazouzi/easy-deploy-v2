@@ -13,6 +13,7 @@ export default function SiteCard({ data }: { data: Sites }) {
       >
         <BlurImage
           alt={data.name ?? "Card thumbnail"}
+          title={data.name ?? "Card thumbnail"}
           width={500}
           height={400}
           className="h-44 object-cover"

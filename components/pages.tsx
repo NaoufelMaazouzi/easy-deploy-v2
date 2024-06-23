@@ -54,6 +54,7 @@ export default async function Pages({
       <h1 className="font-cal text-4xl">No Posts Yet</h1>
       <Image
         alt="missing page"
+        title="missing page"
         src="https://illustrations.popsy.co/gray/graphic-design.svg"
         width={400}
         height={400}

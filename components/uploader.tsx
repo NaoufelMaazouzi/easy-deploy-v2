@@ -30,7 +30,7 @@ export default function Uploader() {
         }
       }
     },
-    [setData],
+    [setData]
   );
 
   const [saving, setSaving] = useState(false);
@@ -68,7 +68,7 @@ export default function Uploader() {
                     </a>
                   </p>
                 </div>
-              </div>,
+              </div>
             );
           } else {
             const error = await res.text();
@@ -169,6 +169,7 @@ export default function Uploader() {
             <img
               src={data.image}
               alt="Preview"
+              title="Preview"
               className="h-full w-full rounded-md object-cover"
             />
           )}

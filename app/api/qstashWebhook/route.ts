@@ -13,17 +13,24 @@ export async function POST(req: Request) {
     const content = decodedBody.choices[0].message.content;
     if (content) {
       const parsedObj = JSON.parse(content);
-      const { service, content: generatedContent } = parsedObj;
+      const {
+        service,
+        firstContent: firstGeneratedContent,
+        secondContent: secondGeneratedContent,
+      } = parsedObj;
       const supabase = createClient();
       const { error } = await supabase
         .from("pages")
-        .update({ content: generatedContent })
+        .update({
+          firstContent: firstGeneratedContent,
+          secondContent: secondGeneratedContent,
+        })
         .eq("service", service.toLowerCase())
         .eq("contentGenerated", false);
-      const { data, error: errorRpc } = await supabase.rpc(
+      const { error: errorRpc } = await supabase.rpc(
         "update_pages_content_with_city"
       );
-      if (error) {
+      if (error || errorRpc) {
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
           { status: 500 }

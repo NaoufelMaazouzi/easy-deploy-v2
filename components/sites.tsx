@@ -47,6 +47,7 @@ export default function Sites({ limit }: { limit?: number }) {
       <h1 className="font-cal text-4xl">No Sites Yet</h1>
       <Image
         alt="missing site"
+        title="missing site"
         src="https://illustrations.popsy.co/gray/web-design.svg"
         width={400}
         height={400}

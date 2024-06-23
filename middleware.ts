@@ -27,10 +27,10 @@ export async function middleware(req: NextRequest) {
   if (url.pathname === "/robots.txt") {
     return NextResponse.rewrite(new URL(`/robots.txt`, req.url));
   }
-
   if (
     subdomain ||
-    !hostname.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+    (hostname !== "localhost:3000" &&
+      !hostname.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`))
   ) {
     return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
   }

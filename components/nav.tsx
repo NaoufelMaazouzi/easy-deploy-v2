@@ -214,6 +214,7 @@ export default function Nav({ children }: { children: ReactNode }) {
                 width={24}
                 height={24}
                 alt="Logo"
+                title="Logo"
                 className="dark:scale-110 dark:rounded-full dark:border dark:border-stone-400"
               />
             </Link>

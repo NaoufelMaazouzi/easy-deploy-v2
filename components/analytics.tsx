@@ -123,6 +123,7 @@ export default function AnalyticsMockup() {
                       <Image
                         src={`https://www.google.com/s2/favicons?sz=64&domain_url=${name}`}
                         alt={name}
+                        title={name}
                         className="mr-2.5"
                         width={20}
                         height={20}
@@ -134,6 +135,7 @@ export default function AnalyticsMockup() {
                         src={`https://flag.vercel.app/m/${code}.svg`}
                         className="mr-2.5"
                         alt={code}
+                        title={code}
                         width={24}
                         height={16}
                       />
