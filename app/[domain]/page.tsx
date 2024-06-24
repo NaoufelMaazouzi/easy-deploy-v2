@@ -4,7 +4,7 @@ import { getSiteData, fetchSitesWithFilter } from "@/lib/utils/fetchers";
 import Banner from "../../components/Banner/index";
 import Features from "../../components/Features/index";
 import Services from "../../components/Services/index";
-import CtaBanner from "@/components/CtaBanner";
+import CtaBanner from "@/components/ctaBanner";
 import { isValidDomain } from "@/lib/utils";
 import Faq from "@/components/Faq";
 import { parsePhoneNumber } from "libphonenumber-js";
