@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         .update({
           firstContent: firstGeneratedContent,
           secondContent: secondGeneratedContent,
+          published: true,
         })
         .eq("service", service.toLowerCase())
         .eq("contentGenerated", false);
