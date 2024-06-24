@@ -47,7 +47,12 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const allPages = await fetchPagesBySubdomain();
+  const allPages = await fetchPagesBySubdomain(
+    null,
+    null,
+    null,
+    "subdomain, slug"
+  );
   const allPaths = allPages
     .map(({ subdomain, slug }) => {
       return {

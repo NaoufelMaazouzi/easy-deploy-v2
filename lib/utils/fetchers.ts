@@ -188,10 +188,13 @@ export async function getPageData(
 export const fetchPagesBySubdomain = async (
   subdomain?: string | null,
   domain?: string | null,
-  published?: boolean | null
+  published?: boolean | null,
+  valuesToSelect?: string | null
 ): Promise<PagesWithSitesValues[] | []> => {
   const supabase = createClient();
-  let query = supabase.from("pages_with_sites_values").select("*");
+  let query = supabase
+    .from("pages_with_sites_values")
+    .select(valuesToSelect ? valuesToSelect : "*");
   const isCustomDomain =
     domain &&
     !domain.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
