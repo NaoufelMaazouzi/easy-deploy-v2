@@ -82,6 +82,12 @@ export const getDomainResponse = async (
 export const getConfigResponse = async (
   domain: string
 ): Promise<DomainConfigResponse> => {
+  console.log(
+    "AAAA",
+    `https://api.vercel.com/v6/domains/${domain}/config${
+      process.env.TEAM_ID_VERCEL ? `?teamId=${process.env.TEAM_ID_VERCEL}` : ""
+    }`
+  );
   return await fetch(
     `https://api.vercel.com/v6/domains/${domain}/config${
       process.env.TEAM_ID_VERCEL ? `?teamId=${process.env.TEAM_ID_VERCEL}` : ""
