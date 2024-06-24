@@ -216,7 +216,7 @@ export const fetchPagesBySubdomain = async (
     return [];
   }
   if (data && data.length > 0) {
-    return data as PagesWithSitesValues[];
+    return data as unknown as PagesWithSitesValues[];
   } else {
     return [];
   }
