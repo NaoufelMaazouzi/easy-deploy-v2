@@ -296,7 +296,6 @@ export default function CreateSitePage() {
                       <Textarea
                         placeholder="Description de mon site"
                         {...field}
-                        maxLength={140}
                         rows={3}
                       />
                     </FormControl>
