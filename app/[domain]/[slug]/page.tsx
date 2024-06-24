@@ -51,16 +51,19 @@ export async function generateStaticParams() {
     null,
     null,
     null,
-    "subdomain, slug"
+    "subdomain, customDomain, slug"
   );
   const allPaths = allPages
-    .map(({ subdomain, slug }) => {
+    .map(({ subdomain, customDomain, slug }) => {
       return {
-        domain: subdomain,
+        domain: customDomain
+          ? `${subdomain ? `${subdomain}.${customDomain}` : customDomain}`
+          : `${subdomain ? `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
         slug,
       };
     })
     .filter(Boolean);
+  console.log("BBBBBBBBBB", allPages);
   return allPaths;
 }
 

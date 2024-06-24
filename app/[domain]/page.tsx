@@ -18,7 +18,7 @@ export async function generateStaticParams() {
           domain: `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
         },
       customDomain && {
-        domain: `${subdomain}.${customDomain}`,
+        domain: `${subdomain ? `${subdomain}.${customDomain}` : customDomain}`,
       },
     ])
     .filter(Boolean);
