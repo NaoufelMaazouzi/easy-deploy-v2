@@ -8,8 +8,13 @@ export default function MentionsLegales({
   siteData: SitesWithoutUsers | null;
 }) {
   if (siteData) {
-    const { contactMail, contactPhone, corporateName, mainActivityCity } =
-      siteData;
+    const {
+      contactMail,
+      contactPhone,
+      corporateName,
+      mainActivityCity,
+      corporateStatus,
+    } = siteData;
     let adress;
     if (isObjectWithProperty(mainActivityCity, "name")) {
       adress = mainActivityCity.name;
@@ -22,7 +27,7 @@ export default function MentionsLegales({
             1. Informations légales
           </h2>
           <p>
-            Statut du propriétaire : <br />
+            Statut du propriétaire : {corporateStatus} <br />
             Propriétaire : {corporateName} <br />
             Adresse : {adress}
             <br />

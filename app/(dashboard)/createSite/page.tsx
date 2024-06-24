@@ -323,6 +323,22 @@ export default function CreateSitePage() {
 
             <FormField
               control={control}
+              {...register("corporateStatus")}
+              render={({ field }) => (
+                <div className="flex flex-col space-y-2">
+                  <FormItem>
+                    <FormLabel>Statut de l'entreprise</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Micro-entreprise" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                </div>
+              )}
+            />
+
+            <FormField
+              control={control}
               {...register("headquartersCity")}
               render={({ field }) => (
                 <div className="flex flex-col space-y-2">

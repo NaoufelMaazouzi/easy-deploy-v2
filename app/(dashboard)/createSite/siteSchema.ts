@@ -58,6 +58,7 @@ export const formSchema = z.object({
         "La raison sociale doit être une chaîne de caractères",
     })
     .min(2),
+  corporateStatus: z.string().min(2),
   contactMail: z.string().refine((value) => validator.isEmail(value), {
     message: "Adresse mail non valide",
   }),
