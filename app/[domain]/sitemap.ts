@@ -40,6 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `https://${siteData.subdomain ? `${siteData.subdomain}.` : ""}${siteData.customDomain ? siteData.customDomain : process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
       lastModified: new Date(siteData.updated_at).toISOString(),
     });
+    sitemapArray.push({
+      url: `https://${siteData.subdomain ? `${siteData.subdomain}.` : ""}${siteData.customDomain ? siteData.customDomain : process.env.NEXT_PUBLIC_ROOT_DOMAIN}/mentions-légales`,
+      lastModified: new Date(siteData.created_at).toISOString(),
+    });
   }
   return sitemapArray;
 }
