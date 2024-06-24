@@ -181,3 +181,27 @@ export const isValidDomain = (domain: string): boolean => {
   const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]{1,63}\.)+[a-zA-Z]{2,6}$/;
   return domainRegex.test(domain);
 };
+
+export const capitalizeFirstLetter = (string: string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+export const getSlugFromUrl = (url: string) => {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const parts = pathname.split("/");
+    const slug = parts[parts.length - 1];
+    return slug;
+  } catch (error) {
+    console.error("Erreur lors de l'analyse de l'URL:", error);
+    return null;
+  }
+};
+
+export const isObjectWithProperty = <T extends string>(
+  obj: any,
+  prop: T
+): obj is { [K in T]: any } => {
+  return typeof obj === "object" && obj !== null && prop in obj;
+};
