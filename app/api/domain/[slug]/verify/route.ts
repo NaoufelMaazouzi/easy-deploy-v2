@@ -16,6 +16,7 @@ export async function GET(
     getDomainResponse(domain),
     getConfigResponse(domain),
   ]);
+  console.log("domainJson:", domainJson, "configJson:", configJson);
 
   if (domainJson?.error?.code === "not_found") {
     // domain not found on Vercel project
