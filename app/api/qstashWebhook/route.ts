@@ -32,7 +32,6 @@ export async function POST(req: Request) {
         "update_pages_content_with_city"
       );
       if (error || errorRpc) {
-        console.log("WWWWW", error, errorRpc);
         return NextResponse.json(
           { message: "Error updating pages Qstash webhook", error },
           { status: 500 }
