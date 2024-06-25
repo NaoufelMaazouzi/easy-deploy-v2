@@ -96,7 +96,7 @@ export default function CreateSitePage() {
   const customDomain = watch("customDomain");
   const radius = watch("radius");
   const name = watch("name");
-  const contactPhone = watch("contactPhone");
+  const headquartersCityNumber = watch("headquartersCity.number");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoadingCreateSite(true);
@@ -337,24 +337,52 @@ export default function CreateSitePage() {
               )}
             />
 
-            <FormField
-              control={control}
-              {...register("headquartersCity")}
-              render={({ field }) => (
-                <div className="flex flex-col space-y-2">
-                  <FormItem>
-                    <FormLabel>Adresse du siège social</FormLabel>
-                    <SearchBar
-                      nameOfProperty="headquartersCity"
-                      placeHolder="Recherche d'une adresse"
-                      setValue={setValue}
-                      {...field}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                </div>
-              )}
-            />
+            <div className="flex w-full gap-1">
+              <div className="flex-grow-0 basis-1/5">
+                <FormField
+                  control={control}
+                  {...register("headquartersCity.number")}
+                  render={({ field }) => (
+                    <div className="flex flex-col space-y-2">
+                      <FormItem>
+                        <FormLabel>Numéro de rue</FormLabel>
+                        <FormControl>
+                          <Input placeholder="32" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    </div>
+                  )}
+                />
+              </div>
+
+              <div className="flex-grow basis-4/5">
+                <FormField
+                  control={control}
+                  {...register("headquartersCity.name")}
+                  render={({ field }) => (
+                    <div className="flex flex-col space-y-2">
+                      <FormItem>
+                        <FormLabel>Adresse du siège social</FormLabel>
+                        <SearchBar
+                          nameOfProperty="headquartersCity"
+                          placeHolder="Recherche d'une adresse"
+                          setValue={(name: any, value: any, options: any) => {
+                            setValue(name, value, options);
+                            setValue(
+                              "headquartersCity.number",
+                              headquartersCityNumber
+                            );
+                          }}
+                          {...field}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
 
             <FormField
               control={control}
@@ -459,7 +487,7 @@ export default function CreateSitePage() {
                   <div className="flex flex-wrap gap-2">
                     {secondaryActivityCities.map((city, index) => (
                       <Tag
-                        key={city.uniqueId}
+                        key={`${city.uniqueId}-${index}`}
                         text={city.name}
                         onRemove={() =>
                           removeTag(

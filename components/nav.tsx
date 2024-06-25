@@ -13,6 +13,7 @@ import {
   Newspaper,
   Settings,
   FileCode,
+  House,
   Github,
 } from "lucide-react";
 import {
@@ -89,9 +90,15 @@ export default function Nav({ children }: { children: ReactNode }) {
     if (segments[0] === "site" && id) {
       return [
         {
-          name: "Retour à tous les sites",
+          name: "Voir tous mes sites",
           href: "/sites",
           icon: <ArrowLeft width={18} />,
+        },
+        {
+          name: "Mon site",
+          href: `/site/${id}/settings`,
+          isActive: segments.includes("settings"),
+          icon: <House width={18} />,
         },
         {
           name: "Pages",

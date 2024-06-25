@@ -27,7 +27,6 @@ export async function middleware(req: NextRequest) {
   if (url.pathname === "/robots.txt") {
     return NextResponse.rewrite(new URL(`/robots.txt`, req.url));
   }
-  console.log("subdomain:", subdomain, "hostname:", hostname);
   if (
     subdomain ||
     (hostname !== "localhost:3000" &&

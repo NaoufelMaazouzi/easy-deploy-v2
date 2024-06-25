@@ -5,45 +5,10 @@ import Link from "next/link";
 import ClipLoader from "react-spinners/ClipLoader";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
+import throttle from "lodash/throttle";
 
 export default function PageCard({ data }: { data: PagesWithSitesValues }) {
   const url = `${data.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`;
-  const [pageData, setPageData] = useState<PagesWithSitesValues>(data);
-  const supabase = createClient();
-
-  const fetchPageData = async () => {
-    const { data: pageData, error } = await supabase
-      .from("pages_with_sites_values")
-      .select("*")
-      .eq("id", data.id)
-      .single();
-    if (error) {
-      console.log("ERREUR fetchPageData", error.message);
-    }
-    if (pageData) {
-      setPageData(pageData);
-    }
-  };
-
-  useEffect(() => {
-    if (pageData.id) {
-      supabase
-        .channel(`channel-page-${pageData.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "pages",
-            filter: `id=eq.${pageData.id}`,
-          },
-          (payload) => {
-            fetchPageData();
-          }
-        )
-        .subscribe();
-    }
-  }, []);
 
   return (
     <div className="relative rounded-lg border border-stone-200 pb-10 shadow-md transition-all hover:shadow-xl dark:border-stone-700 dark:hover:border-white">
@@ -52,7 +17,7 @@ export default function PageCard({ data }: { data: PagesWithSitesValues }) {
         className="flex flex-col overflow-hidden rounded-lg"
       >
         <div className="relative h-44 overflow-hidden">
-          {!pageData.contentGenerated ? (
+          {!data.contentGenerated ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <LoaderWithText />
             </div>

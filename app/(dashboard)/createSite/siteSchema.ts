@@ -8,6 +8,14 @@ const locationSchema = z.object({
   lng: z.number(),
 });
 
+const headquartersCity = z.object({
+  number: z.string().min(1),
+  uniqueId: z.string().min(2),
+  name: z.string().min(2),
+  lat: z.number(),
+  lng: z.number(),
+});
+
 export const defaultValues = {
   name: "",
   subdomain: "",
@@ -18,6 +26,7 @@ export const defaultValues = {
   contactPhone: "",
   radius: 0,
   headquartersCity: {
+    number: "",
     uniqueId: "",
     name: "",
     lat: 0,
@@ -71,7 +80,7 @@ export const formSchema = z.object({
       }
     ),
   radius: z.number(),
-  headquartersCity: locationSchema
+  headquartersCity: headquartersCity
     .required()
     .refine((data) => data.name !== "", { message: "Entrez une adresse" }),
   mainActivityCity: locationSchema

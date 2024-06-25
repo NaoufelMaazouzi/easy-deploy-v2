@@ -63,7 +63,6 @@ export async function generateStaticParams() {
       };
     })
     .filter(Boolean);
-  console.log("BBBBBBBBBB", allPages);
   return allPaths;
 }
 

@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="fr" className={GeistSans.className}>
       <body className="bg-background text-foreground">
         <Toaster richColors className="dark:hidden" />
         <Toaster richColors theme="dark" className="hidden dark:block" />

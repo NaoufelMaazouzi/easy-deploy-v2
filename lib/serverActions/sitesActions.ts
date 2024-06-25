@@ -71,7 +71,14 @@ export async function createSite(
       .from("pages")
       .insert(generatedPages);
 
-    if (createdPagesError) {
+    const { error: updatedNumbersOfPageError } = await supabase
+      .from("sites")
+      .update({
+        numberOfPages: generatedPages.length,
+      })
+      .eq("id", siteId);
+
+    if (createdPagesError || updatedNumbersOfPageError) {
       return {
         siteId: null,
         status: "error",

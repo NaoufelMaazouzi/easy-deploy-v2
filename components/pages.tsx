@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
+import throttle from "lodash/throttle";
 
 export default async function Pages({
   siteId,
@@ -29,15 +30,25 @@ export default async function Pages({
     setAllPages(data);
   };
 
+  const throttledFetchPageData = throttle(fetchData, 20000, {
+    leading: false,
+    trailing: true,
+  });
+
   useEffect(() => {
     fetchData();
     supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "pages" },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "pages",
+          // filter: `id=eq.${pageData.id}`,
+        },
         (payload) => {
-          fetchData();
+          throttledFetchPageData();
         }
       )
       .subscribe();
