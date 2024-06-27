@@ -100,7 +100,7 @@ export default async function SitePostPage({
 
   return (
     <section className="relative text-center" id="page-service-section">
-      <h1 className="text-lightgrey text-3xl lg:text-5xl font-semibold text-black text-center mt-20">
+      <h1 className="text-lightgrey text-3xl lg:text-5xl font-semibold text-black text-center mt-20 px-6">
         Découvrez notre service de {h1}
       </h1>
       <div className="mx-auto max-w-7xl lg:pt-16 sm:pb-20 px-6">
