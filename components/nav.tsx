@@ -148,7 +148,7 @@ export default function Nav({ children }: { children: ReactNode }) {
         icon: <LayoutDashboard width={18} />,
       },
       {
-        name: "Sites",
+        name: "Mes sites",
         href: "/sites",
         isActive: segments[0] === "sites",
         icon: <Globe width={18} />,

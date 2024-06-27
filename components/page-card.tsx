@@ -1,11 +1,7 @@
 import BlurImage from "@/components/blur-image";
 import { placeholderBlurhash, random } from "@/lib/utils";
-// import { Post, Site } from "@prisma/client";
 import Link from "next/link";
 import ClipLoader from "react-spinners/ClipLoader";
-import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-import throttle from "lodash/throttle";
 
 export default function PageCard({ data }: { data: PagesWithSitesValues }) {
   const url = `${data.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`;

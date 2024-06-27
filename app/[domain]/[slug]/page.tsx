@@ -6,8 +6,7 @@ import {
 } from "@/lib/utils/fetchers";
 import { isValidDomain } from "@/lib/utils";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-const MentionsLegales = dynamic(() => import("@/components/MentionsLegales"));
+import MentionsLegales from "@/components/mentionsLegales";
 
 export async function generateMetadata({
   params,
@@ -41,7 +40,7 @@ export async function generateMetadata({
     },
     // Optional: Set canonical URL to custom domain if it exists
     alternates: {
-      canonical: `https://${customDomain ? customDomain : domain}`,
+      canonical: `https://${customDomain ? customDomain : domain}/${slug}`,
     },
   };
 }

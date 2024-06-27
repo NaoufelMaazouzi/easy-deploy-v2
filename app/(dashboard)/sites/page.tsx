@@ -22,8 +22,7 @@ export default async function AllSites({ params }: { params: { id: string } }) {
             </div>
           }
         >
-          {/* @ts-expect-error Server Component */}
-          <Sites siteId={decodeURIComponent(params.id)} />
+          <Sites />
         </Suspense>
       </div>
     </div>

@@ -61,6 +61,7 @@ export async function generateMetadata({
       "https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/sign/images/favicon-32x32.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvZmF2aWNvbi0zMngzMi5wbmciLCJpYXQiOjE3MTg4MDk5NTYsImV4cCI6NDg0MDg3Mzk1Nn0.SnhYmWXyr1SdBKjmfSsk51BT29VFWW2rX78iviGBwrQ&t=2024-06-19T15%3A12%3A36.708Z",
     ],
     metadataBase: new URL(`https://${domain}`),
+    // Optional: Set canonical URL to custom domain if it exists
     alternates: {
       canonical: `https://${customDomain ? customDomain : domain}`,
     },
