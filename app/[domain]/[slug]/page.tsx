@@ -91,6 +91,7 @@ export default async function SitePostPage({
   const pageData = await getPageData(domain, slug);
 
   if (!pageData) {
+    console.log("NOT FOUND !!!");
     notFound();
   }
 
