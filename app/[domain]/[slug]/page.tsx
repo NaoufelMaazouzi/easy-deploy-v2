@@ -65,6 +65,7 @@ export async function generateStaticParams() {
       };
     })
     .filter(Boolean);
+  console.log("ALL PATHS LENGTH: ", allPaths.length);
   return allPaths;
 }
 
