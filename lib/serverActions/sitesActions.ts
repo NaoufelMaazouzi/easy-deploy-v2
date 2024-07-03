@@ -24,7 +24,7 @@ import {
 } from "@/app/(dashboard)/createSite/siteSchema";
 import { SafeParseReturnType } from "zod";
 import { createClient } from "@/utils/supabase/server";
-import { CreateSiteResult } from "../utils/types";
+import { CreateSiteResult, FilterType } from "../utils/types";
 import { addDomainToVercel, validDomainRegex } from "../utils/domains";
 import { notFound } from "next/navigation";
 import { withSiteAuth } from "../utils/auth";
@@ -458,5 +458,54 @@ export async function getSiteById(id: number | string) {
       status: "error",
       text: error.message as string,
     };
+  }
+}
+
+export async function fetchSitesWithFilterFromServer(
+  viewName: string,
+  filters?: FilterType[],
+  withAuth?: boolean
+): Promise<Sites[] | []> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      if (typeof filter.value === "object" && filter.value !== null) {
+        query = (query as any)[filter.method](filter.column, filter.value);
+      } else {
+        query = query.filter(filter.column, filter.method as any, filter.value);
+      }
+    });
+  }
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetchSitesWithFilter:", error);
+    return [];
+  }
+
+  if (withAuth) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const filteredData = data.filter((site) => site.user_id === user.id);
+
+    if (filteredData.length === 0) {
+      return [];
+    }
+
+    return filteredData as Sites[];
+  }
+
+  if (data && data.length > 0) {
+    return data as Sites[];
+  } else {
+    return [];
   }
 }

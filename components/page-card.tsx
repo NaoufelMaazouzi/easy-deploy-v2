@@ -24,7 +24,7 @@ export default function PageCard({ data }: { data: PagesWithSitesValues }) {
               width={500}
               height={400}
               className="h-full object-cover"
-              src={"/placeholder.png"}
+              src={"/images/placeholder.png"}
               placeholder="blur"
               blurDataURL={placeholderBlurhash}
             />

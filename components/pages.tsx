@@ -6,8 +6,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import throttle from "lodash/throttle";
-import { fetchPagesWithFilter } from "@/lib/utils/fetchers";
 import PlaceholderCard from "./placeholder-card"; // Assurez-vous que PlaceholderCard est importé
+import { fetchPagesWithFilter } from "@/lib/serverActions/pageActions";
 
 export default function Pages({
   siteId,

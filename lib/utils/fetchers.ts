@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 
 import { getSubdomainAndDomain } from ".";
 import { FilterType } from "./types";
@@ -191,33 +191,38 @@ export const fetchPagesBySubdomain = async (
   published?: boolean | null,
   valuesToSelect?: string | null
 ): Promise<PagesWithSitesValues[] | []> => {
-  const supabase = createClient();
-  let query = supabase
-    .from("pages_with_sites_values")
-    .select(valuesToSelect ? valuesToSelect : "*");
-  const isCustomDomain =
-    domain &&
-    !domain.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
-  if (subdomain) {
-    query = query.eq("subdomain", subdomain);
-  }
-  if (isCustomDomain) {
-    query = query.eq("customDomain", domain);
-  }
-  if (published) {
-    query = query.eq("published", published);
-  }
+  try {
+    const supabase = createClient();
+    let query = supabase
+      .from("pages_with_sites_values")
+      .select(valuesToSelect ? valuesToSelect : "*");
+    const isCustomDomain =
+      domain &&
+      !domain.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+      process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
+    if (subdomain) {
+      query = query.eq("subdomain", subdomain);
+    }
+    if (isCustomDomain) {
+      query = query.eq("customDomain", domain);
+    }
+    if (published) {
+      query = query.eq("published", published);
+    }
 
-  const { data, error } = await query;
+    const { data, error } = await query;
 
-  if (error) {
-    console.error("Error fetchPagesBySubdomain:", error);
-    return [];
-  }
-  if (data && data.length > 0) {
-    return data as unknown as PagesWithSitesValues[];
-  } else {
+    if (error) {
+      console.error("Error fetchPagesBySubdomain:", error);
+      return [];
+    }
+    if (data && data.length > 0) {
+      return data as unknown as PagesWithSitesValues[];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    console.error("Catch Error fetchPagesBySubdomain:", error);
     return [];
   }
 };
@@ -243,8 +248,7 @@ export const fetchPagesBySubdomain = async (
 
 export async function fetchSitesWithFilter(
   viewName: string,
-  filters?: FilterType[],
-  withAuth?: boolean
+  filters?: FilterType[]
 ): Promise<Sites[] | []> {
   const supabase = createClient();
   let query = supabase.from(viewName).select("*");
@@ -263,24 +267,6 @@ export async function fetchSitesWithFilter(
   if (error) {
     console.error("Error fetchSitesWithFilter:", error);
     return [];
-  }
-
-  if (withAuth) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return [];
-    }
-
-    const filteredData = data.filter((site) => site.user_id === user.id);
-
-    if (filteredData.length === 0) {
-      return [];
-    }
-
-    return filteredData as Sites[];
   }
 
   if (data && data.length > 0) {
@@ -339,77 +325,5 @@ export async function fetchSinglePageWithFilter(
     return data as PagesWithSitesValues;
   } else {
     return null;
-  }
-}
-
-export async function fetchPagesWithFilter(
-  viewName: string,
-  filters?: FilterType[],
-  withAuth?: boolean,
-  single?: boolean
-): Promise<PagesWithSitesValues[] | []> {
-  const supabase = createClient();
-  let query = supabase.from(viewName).select("*");
-
-  if (filters) {
-    filters.forEach((filter) => {
-      const { method, column, value } = filter;
-      switch (method) {
-        case "eq":
-          if (typeof filter.value === "object" && filter.value !== null) {
-            query = (query as any)[filter.method](filter.column, filter.value);
-          } else {
-            query = query.filter(
-              filter.column,
-              filter.method as any,
-              filter.value
-            );
-          }
-          query = query.filter(column, method as any, value);
-          break;
-        case "limit":
-          query = query.limit(value);
-          break;
-        default:
-          console.warn(`Unknown filter method: ${method}`);
-      }
-    });
-  }
-  let data, error;
-  if (single) {
-    ({ data, error } = await query.single());
-  } else {
-    ({ data, error } = await query);
-  }
-
-  if (error) {
-    console.error("Error fetchPagesWithFilter:", error);
-    return [];
-  }
-
-  if (withAuth) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return [];
-    }
-
-    const filteredData = data.filter(
-      (site: SitesWithUsers) => site.user_id === user.id
-    );
-
-    if (filteredData.length === 0) {
-      return [];
-    }
-
-    return filteredData as PagesWithSitesValues[];
-  }
-
-  if (data && data.length > 0) {
-    return data as PagesWithSitesValues[];
-  } else {
-    return [];
   }
 }

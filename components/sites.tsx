@@ -4,8 +4,8 @@ import SiteCard from "./site-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { fetchSitesWithFilter } from "@/lib/utils/fetchers";
 import PlaceholderCard from "./placeholder-card";
+import { fetchSitesWithFilterFromServer } from "@/lib/serverActions/sitesActions";
 
 export default function Sites({ limit }: { limit?: number }) {
   const [allSites, setAllSites] = useState<any>([]);
@@ -14,7 +14,7 @@ export default function Sites({ limit }: { limit?: number }) {
 
   const fetchData = async () => {
     setLoading(true);
-    const sites = await fetchSitesWithFilter(
+    const sites = await fetchSitesWithFilterFromServer(
       "sites_with_users",
       [{ method: "order", column: "created_at", value: { ascending: true } }],
       true

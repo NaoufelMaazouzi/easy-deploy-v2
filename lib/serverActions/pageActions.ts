@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidateTag } from "next/cache";
-import { updatePageResult } from "../utils/types";
+import { FilterType, updatePageResult } from "../utils/types";
 import { randomString } from "../utils";
 import { withPostAuth, withSiteAuth } from "../utils/auth";
 import { notFound } from "next/navigation";
@@ -215,5 +215,77 @@ export async function getPageById(id: number | string) {
       status: "error",
       text: error.message as string,
     };
+  }
+}
+
+export async function fetchPagesWithFilter(
+  viewName: string,
+  filters?: FilterType[],
+  withAuth?: boolean,
+  single?: boolean
+): Promise<PagesWithSitesValues[] | []> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      const { method, column, value } = filter;
+      switch (method) {
+        case "eq":
+          if (typeof filter.value === "object" && filter.value !== null) {
+            query = (query as any)[filter.method](filter.column, filter.value);
+          } else {
+            query = query.filter(
+              filter.column,
+              filter.method as any,
+              filter.value
+            );
+          }
+          query = query.filter(column, method as any, value);
+          break;
+        case "limit":
+          query = query.limit(value);
+          break;
+        default:
+          console.warn(`Unknown filter method: ${method}`);
+      }
+    });
+  }
+  let data, error;
+  if (single) {
+    ({ data, error } = await query.single());
+  } else {
+    ({ data, error } = await query);
+  }
+
+  if (error) {
+    console.error("Error fetchPagesWithFilter:", error);
+    return [];
+  }
+
+  if (withAuth) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const filteredData = data.filter(
+      (site: SitesWithUsers) => site.user_id === user.id
+    );
+
+    if (filteredData.length === 0) {
+      return [];
+    }
+
+    return filteredData as PagesWithSitesValues[];
+  }
+
+  if (data && data.length > 0) {
+    return data as PagesWithSitesValues[];
+  } else {
+    return [];
   }
 }
