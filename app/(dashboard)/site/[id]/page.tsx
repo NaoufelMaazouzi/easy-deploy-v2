@@ -1,27 +1,13 @@
 import CreatePageButton from "@/components/create-page-button";
 import Pages from "@/components/pages";
-import { createClient } from "@/utils/supabase/server";
-import { notFound } from "next/navigation";
+import { getSiteById } from "@/lib/serverActions/sitesActions";
 
 export default async function SitePages({
   params,
 }: {
   params: { id: string };
 }) {
-  const supabase = createClient();
-  const { data: site } = await supabase
-    .from("sites_with_users")
-    .select("*")
-    .eq("id", params.id)
-    .single();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!site || user?.id !== site.user_id) {
-    notFound();
-  }
-
+  const site = await getSiteById(params.id);
   return (
     <>
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">

@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/tooltip";
 import { PhoneInput } from "@/components/phone-input";
 import { CreateSiteResult } from "@/lib/utils/types";
-import { showAlert } from "@/lib/utils";
+import { generateByIA, handleAppendInArray, showAlert } from "@/lib/utils";
 
 export default function CreateSitePage() {
   const router = useRouter();
@@ -78,19 +78,6 @@ export default function CreateSitePage() {
     control,
     name: "services",
   });
-
-  const handleAppendInArray = (
-    arr: any[],
-    func: Function,
-    obj: any,
-    key: string
-  ) => {
-    if (!arr.some((x) => x[key] === obj[key])) {
-      return func(obj);
-    } else {
-      return toast.error("Cette ville est déjà présente");
-    }
-  };
 
   const mainActivityCity = watch("mainActivityCity");
   const customDomain = watch("customDomain");
@@ -175,29 +162,6 @@ export default function CreateSitePage() {
     return toast.error("Service déjà présent");
   };
 
-  const generateByIA = async () => {
-    if (!services.length) {
-      return toast.error("Veuillez ajouter un service d'abord");
-    } else if (!selectedServices.some((e) => e.name !== "")) {
-      return toast.error(
-        "Veuillez d'abord séléctionner des services en cliquant dessus"
-      );
-    }
-    try {
-      setLoadingAI(true);
-      const filteredServices = selectedServices
-        .filter((service) => service.name.trim() !== "")
-        .map((service) => service.name)
-        .join(", ");
-      const result = await generateServices(filteredServices);
-      setLoadingAI(false);
-      result?.forEach((e) => appendServices(e));
-    } catch (error) {
-      setLoadingAI(false);
-      return toast.error((error as Error).message);
-    }
-  };
-
   const selectTag = (value: Services) => {
     if (selectedServices.some((e) => e.name === value.name)) {
       return setSelectedServices(
@@ -209,13 +173,13 @@ export default function CreateSitePage() {
   };
 
   return (
-    <div className="flex flex-col space-y-6">
-      <h1 className="font-cal text-3xl font-bold dark:text-white">
-        Créer votre site web
-      </h1>
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="md:max-w-7xl">
-          <div className="relative flex flex-col space-y-4 p-5 md:p-10">
+    <Form {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="md:max-w-7xl">
+        <div className="flex flex-col space-y-6 mb-6">
+          <h1 className="font-cal text-3xl font-bold dark:text-white max-sm:p-5">
+            Créer votre site web
+          </h1>
+          <div className="space-y-4 max-sm:p-5">
             <FormField
               control={control}
               {...register("name")}
@@ -462,7 +426,8 @@ export default function CreateSitePage() {
                           secondaryActivityCities,
                           appendSecondaryActivityCities,
                           e,
-                          "uniqueId"
+                          "uniqueId",
+                          "Cette ville est déjà présente"
                         )
                       }
                       removeValue={removeSecondaryActivityCities}
@@ -535,7 +500,14 @@ export default function CreateSitePage() {
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => generateByIA()}
+                              onClick={() =>
+                                generateByIA(
+                                  services,
+                                  selectedServices,
+                                  appendServices,
+                                  setLoadingAI
+                                )
+                              }
                               disabled={loadingAI}
                             >
                               <Bot className="mr-2.5 h-4 w-4" />
@@ -546,36 +518,35 @@ export default function CreateSitePage() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Add to library</p>
+                            <p>Générer avec l'intelligence artificielle</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <FormMessage />
-                    <div className="flex flex-wrap space-x-2">
-                      {services.map((value, index) => (
-                        <Tag
-                          key={index}
-                          text={value.name}
-                          onRemove={() =>
-                            removeTag(
-                              index,
-                              "serices",
-                              value.name,
-                              removeServices
-                            )
-                          }
-                          onSelected={() => selectTag(value)}
-                          isSelected={selectedServices.some(
-                            (e) => e.name === value.name
-                          )}
-                        />
-                      ))}
-                    </div>
                   </FormItem>
                 </div>
               )}
             />
+            {services.length ? (
+              <div className="container mx-auto p-4">
+                <div className="flex flex-wrap gap-2">
+                  {services.map((value, index) => (
+                    <Tag
+                      key={index}
+                      text={value.name}
+                      onRemove={() =>
+                        removeTag(index, "services", value.name, removeServices)
+                      }
+                      onSelected={() => selectTag(value)}
+                      isSelected={selectedServices.some(
+                        (e) => e.name === value.name
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <FormField
               control={control}
@@ -605,15 +576,14 @@ export default function CreateSitePage() {
               )}
             />
           </div>
-
-          <Button type="submit" disabled={loadingCreateSite}>
-            {loadingCreateSite && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {loadingCreateSite ? "Création..." : "Créer"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+        </div>
+        <Button type="submit" disabled={loadingCreateSite}>
+          {loadingCreateSite && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          {loadingCreateSite ? "Création..." : "Créer"}
+        </Button>
+      </form>
+    </Form>
   );
 }

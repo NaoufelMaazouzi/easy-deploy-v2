@@ -80,6 +80,7 @@
     "unist-util-visit": "^5.0.0",
     "use-debounce": "^10.0.0",
     "validator": "^13.12.0",
+    "vaul": "^0.9.1",
     "zod": "^3.21.4",
     "zod-i18n-map": "^2.27.0"
   },

@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { customAlphabet } from "nanoid";
 import { toast } from "sonner";
+import { generateServices } from "../serverActions/sitesActions";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,19 +62,36 @@ export const random = (min: number, max: number) => {
 };
 
 export const formatLocationAddress = (city: any) => {
-  let address = (city.properties.formatted || city.properties.name).replace(
-    /, France/g,
-    ""
-  );
-  const parts = address.split(" ");
+  let address;
+  if (typeof city === "string") {
+    address = city;
+  } else {
+    address = (city.properties.name || city.properties.formatted).replace(
+      /, France/g,
+      ""
+    );
+  }
+
+  const parts = address.split(", ");
+
+  if (parts.length > 1) {
+    const cityName = parts[0];
+    const postalCode = parts[1].match(/\d+/)?.[0]; // Extrait le code postal
+    if (postalCode) {
+      return `${cityName} (${postalCode})`;
+    }
+  }
+
+  const subParts = parts[0].split(" ");
   let formattedAddress;
-  if (parts.length > 1 && /^\d+$/.test(parts[0])) {
-    let postalCode: string = parts[0];
-    let cityName: string = parts.slice(1).join(" ");
+  if (subParts.length > 1 && /^\d+$/.test(subParts[0])) {
+    let postalCode: string = subParts[0];
+    let cityName: string = subParts.slice(1).join(" ");
     formattedAddress = `${cityName} (${postalCode})`;
   } else {
-    formattedAddress = address;
+    formattedAddress = parts[0];
   }
+
   return formattedAddress;
 };
 
@@ -204,4 +222,46 @@ export const isObjectWithProperty = <T extends string>(
   prop: T
 ): obj is { [K in T]: any } => {
   return typeof obj === "object" && obj !== null && prop in obj;
+};
+
+export const generateByIA = async (
+  services: Services[],
+  selectedServices: Services[],
+  appendServices: Function,
+  loadingFunc: Function
+) => {
+  if (!services.length) {
+    return toast.error("Veuillez ajouter un service d'abord");
+  } else if (!selectedServices.some((e) => e.name !== "")) {
+    return toast.error(
+      "Veuillez d'abord séléctionner des services en cliquant dessus"
+    );
+  }
+  try {
+    loadingFunc(true);
+    const filteredServices = selectedServices
+      .filter((service) => service.name.trim() !== "")
+      .map((service) => service.name)
+      .join(", ");
+    const result = await generateServices(filteredServices);
+    loadingFunc(false);
+    result?.forEach((e) => appendServices(e));
+  } catch (error) {
+    loadingFunc(false);
+    return toast.error((error as Error).message);
+  }
+};
+
+export const handleAppendInArray = (
+  arr: any[],
+  func: Function,
+  obj: any,
+  key: string,
+  errorText: string
+) => {
+  if (!arr.some((x) => x[key] === obj[key])) {
+    return func(obj);
+  } else {
+    return toast.error(errorText);
+  }
 };

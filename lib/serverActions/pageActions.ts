@@ -5,11 +5,12 @@ import { revalidateTag } from "next/cache";
 import { updatePageResult } from "../utils/types";
 import { randomString } from "../utils";
 import { withPostAuth, withSiteAuth } from "../utils/auth";
-const supabase = createClient();
+import { notFound } from "next/navigation";
 
 export const updatePage = async (
   data: PagesWithSitesValues
 ): Promise<updatePageResult> => {
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -68,8 +69,8 @@ export const updatePageMetadata = withPostAuth(
     key: string,
     successText: string
   ): Promise<updatePageResult> => {
-    const value = formData.get(key) as string;
     try {
+      const value = formData.get(key) as string;
       // if (key === "image") {
       //   const file = formData.get("image") as File;
       //   const filename = `${customNanoid()}.${file.type.split("/")[1]}`;
@@ -82,14 +83,15 @@ export const updatePageMetadata = withPostAuth(
 
       //   response = await prisma.post.update({
       //     where: {
-      //       id: post.id,
+      // id: post.id,
       //     },
       //     data: {
-      //       image: url,
-      //       imageBlurhash: blurhash,
+      // image: url,
+      // imageBlurhash: blurhash,
       //     },
       //   });
       // } else {
+      const supabase = createClient();
       const { error } = await supabase
         .from("pages")
         .update({
@@ -137,6 +139,7 @@ export const updatePageMetadata = withPostAuth(
 );
 
 export const createPage = withSiteAuth(async (_: FormData, site: Sites) => {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("pages")
     .insert({
@@ -191,3 +194,26 @@ export const createPage = withSiteAuth(async (_: FormData, site: Sites) => {
 
 //   return "okkk";
 // };
+
+export async function getPageById(id: number | string) {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("pages_with_sites_values")
+      .select("*")
+      .eq("id", Number(id))
+      .single();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!data || user?.id !== data.user_id || error) {
+      notFound();
+    }
+    return data;
+  } catch (error: any) {
+    return {
+      status: "error",
+      text: error.message as string,
+    };
+  }
+}

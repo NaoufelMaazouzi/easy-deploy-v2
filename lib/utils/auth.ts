@@ -1,17 +1,21 @@
+import {
+  AllFormSchemaKeys,
+  formSchema,
+} from "@/app/(dashboard)/createSite/siteSchema";
 import { createClient } from "@/utils/supabase/server";
-const supabase = createClient();
+import z from "zod";
 
 export function withSiteAuth(action: any) {
   return async (
-    formData: FormData | null,
+    data: z.infer<typeof formSchema> | null,
     siteId: number,
-    key: string | null,
+    key?: AllFormSchemaKeys | null,
     successText?: string | null
   ) => {
+    const supabase = createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
     const { data: site, error } = await supabase
       .from("sites_with_users")
       .select("*")
@@ -33,7 +37,7 @@ export function withSiteAuth(action: any) {
       };
     }
 
-    return action(formData, site, key, successText);
+    return action(data, site, key, successText);
   };
 }
 
@@ -44,6 +48,7 @@ export function withPostAuth(action: any) {
     key: string | null,
     successText: string
   ) => {
+    const supabase = createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

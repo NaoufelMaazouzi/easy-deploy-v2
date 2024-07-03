@@ -112,12 +112,6 @@ export default function Nav({ children }: { children: ReactNode }) {
           isActive: segments.includes("analytics"),
           icon: <BarChart3 width={18} />,
         },
-        {
-          name: "Paramètres",
-          href: `/site/${id}/settings`,
-          isActive: segments.includes("settings"),
-          icon: <Settings width={18} />,
-        },
       ];
     } else if (segments[0] === "post" && id) {
       return [

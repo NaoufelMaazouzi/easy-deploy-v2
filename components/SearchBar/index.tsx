@@ -9,6 +9,7 @@ interface SearchBarProps<T> {
   placeHolder: string;
   setValue: any;
   removeValue?: UseFieldArrayRemove;
+  defaultValue?: string;
 }
 
 const SearchBar = React.forwardRef(
@@ -18,10 +19,11 @@ const SearchBar = React.forwardRef(
       placeHolder,
       setValue,
       removeValue, // value,
+      defaultValue,
     }: SearchBarProps<T>,
     ref: React.Ref<HTMLDivElement>
   ) => {
-    const [query, setQuery] = useState<string>("");
+    const [query, setQuery] = useState<string>(defaultValue || "");
     const [results, setResults] = useState<Location[]>([]);
     const [showResults, setShowResults] = useState<boolean>(false);
     const searchBarRef = useRef<HTMLDivElement>(null);

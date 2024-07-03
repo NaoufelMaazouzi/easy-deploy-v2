@@ -1,13 +1,11 @@
+"use server";
+
 import { unstable_cache } from "next/cache";
-import { serialize } from "next-mdx-remote/serialize";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
-import { createClient } from "@/utils/supabase/client";
-import { createClient as createClientServer } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 
 import { getSubdomainAndDomain } from ".";
 import { FilterType } from "./types";
-
-const supabase = createClient();
 
 // export async function getAllSites() {
 //   let query = supabase.from("sites_without_users").select("*");
@@ -22,23 +20,24 @@ const supabase = createClient();
 //   return data;
 // }
 
-const fetchSite = async (subdomain: string | null, domain?: string | null) => {
-  let query = supabase.from("sites_without_users").select("*");
-  if (subdomain) {
-    query = query.eq("subdomain", subdomain);
-  } else if (domain) {
-    query = query.eq("customDomain", domain);
-  }
+// const fetchSite = async (subdomain: string | null, domain?: string | null) => {
+// const supabase = createClient();
+//   let query = supabase.from("sites_without_users").select("*");
+//   if (subdomain) {
+//     query = query.eq("subdomain", subdomain);
+//   } else if (domain) {
+//     query = query.eq("customDomain", domain);
+//   }
 
-  const { data, error } = await query.single();
+//   const { data, error } = await query.single();
 
-  if (error) {
-    console.error("Error fetching site:", error);
-    return null;
-  }
+//   if (error) {
+//     console.error("Error fetching site:", error);
+//     return null;
+//   }
 
-  return data;
-};
+//   return data;
+// };
 
 export async function getSiteData(domain: string, isCustomDomain?: boolean) {
   const { subdomain, domain: domainWithoutSub } = getSubdomainAndDomain(domain);
@@ -57,7 +56,7 @@ export async function getSiteData(domain: string, isCustomDomain?: boolean) {
     },
     [`${domain}-metadata`],
     {
-      revalidate: 900,
+      revalidate: 60,
       tags: [`${domain}-metadata`],
     }
   )();
@@ -161,6 +160,7 @@ export async function getPageData(
 
   return await unstable_cache(
     async () => {
+      const supabase = createClient();
       let query = supabase
         .from("pages_with_sites_values")
         .select("*")
@@ -179,7 +179,7 @@ export async function getPageData(
     },
     [`${domain}-${slug}`],
     {
-      revalidate: 900, //15 minutes
+      revalidate: 60, //1 minute
       tags: [`${domain}-${slug}`],
     }
   )();
@@ -243,14 +243,19 @@ export const fetchPagesBySubdomain = async (
 
 export async function fetchSitesWithFilter(
   viewName: string,
-  filters?: FilterType[]
+  filters?: FilterType[],
+  withAuth?: boolean
 ): Promise<Sites[] | []> {
   const supabase = createClient();
   let query = supabase.from(viewName).select("*");
 
   if (filters) {
     filters.forEach((filter) => {
-      query = query.filter(filter.column, filter.method as any, filter.value);
+      if (typeof filter.value === "object" && filter.value !== null) {
+        query = (query as any)[filter.method](filter.column, filter.value);
+      } else {
+        query = query.filter(filter.column, filter.method as any, filter.value);
+      }
     });
   }
   const { data, error } = await query;
@@ -258,6 +263,24 @@ export async function fetchSitesWithFilter(
   if (error) {
     console.error("Error fetchSitesWithFilter:", error);
     return [];
+  }
+
+  if (withAuth) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const filteredData = data.filter((site) => site.user_id === user.id);
+
+    if (filteredData.length === 0) {
+      return [];
+    }
+
+    return filteredData as Sites[];
   }
 
   if (data && data.length > 0) {
@@ -293,32 +316,6 @@ export async function fetchSingleSiteWithFilter(
   }
 }
 
-export async function fetchPagesWithFilter(
-  viewName: string,
-  filters?: FilterType[]
-): Promise<PagesWithSitesValues[] | []> {
-  const supabase = createClient();
-  let query = supabase.from(viewName).select("*");
-
-  if (filters) {
-    filters.forEach((filter) => {
-      query = query.filter(filter.column, filter.method as any, filter.value);
-    });
-  }
-  const { data, error } = await query.order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Error fetchPagesWithFilter:", error);
-    return [];
-  }
-
-  if (data && data.length > 0) {
-    return data as PagesWithSitesValues[];
-  } else {
-    return [];
-  }
-}
-
 export async function fetchSinglePageWithFilter(
   viewName: string,
   filters?: FilterType[]
@@ -342,5 +339,77 @@ export async function fetchSinglePageWithFilter(
     return data as PagesWithSitesValues;
   } else {
     return null;
+  }
+}
+
+export async function fetchPagesWithFilter(
+  viewName: string,
+  filters?: FilterType[],
+  withAuth?: boolean,
+  single?: boolean
+): Promise<PagesWithSitesValues[] | []> {
+  const supabase = createClient();
+  let query = supabase.from(viewName).select("*");
+
+  if (filters) {
+    filters.forEach((filter) => {
+      const { method, column, value } = filter;
+      switch (method) {
+        case "eq":
+          if (typeof filter.value === "object" && filter.value !== null) {
+            query = (query as any)[filter.method](filter.column, filter.value);
+          } else {
+            query = query.filter(
+              filter.column,
+              filter.method as any,
+              filter.value
+            );
+          }
+          query = query.filter(column, method as any, value);
+          break;
+        case "limit":
+          query = query.limit(value);
+          break;
+        default:
+          console.warn(`Unknown filter method: ${method}`);
+      }
+    });
+  }
+  let data, error;
+  if (single) {
+    ({ data, error } = await query.single());
+  } else {
+    ({ data, error } = await query);
+  }
+
+  if (error) {
+    console.error("Error fetchPagesWithFilter:", error);
+    return [];
+  }
+
+  if (withAuth) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return [];
+    }
+
+    const filteredData = data.filter(
+      (site: SitesWithUsers) => site.user_id === user.id
+    );
+
+    if (filteredData.length === 0) {
+      return [];
+    }
+
+    return filteredData as PagesWithSitesValues[];
+  }
+
+  if (data && data.length > 0) {
+    return data as PagesWithSitesValues[];
+  } else {
+    return [];
   }
 }

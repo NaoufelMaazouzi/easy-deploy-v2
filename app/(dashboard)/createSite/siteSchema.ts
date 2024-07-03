@@ -100,6 +100,7 @@ export const formSchema = z.object({
 
 type FormSchemaArrayKeys = "secondaryActivityCities";
 type FormSchemaObjectKeys = "headquartersCity";
+export type AllFormSchemaKeys = keyof z.infer<typeof formSchema>;
 
 export type FormSchemaKeys =
   | FormSchemaArrayKeys

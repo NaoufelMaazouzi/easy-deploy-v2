@@ -18,11 +18,17 @@ import { createOpenAI } from "@ai-sdk/openai";
 // import { formSchema } from "@/app/(dashboard)/createSite/siteSchema";
 // import { Client } from "@upstash/qstash";
 import { generateObject } from "ai";
-import { formSchema } from "@/app/(dashboard)/createSite/siteSchema";
+import {
+  AllFormSchemaKeys,
+  formSchema,
+} from "@/app/(dashboard)/createSite/siteSchema";
 import { SafeParseReturnType } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { CreateSiteResult } from "../utils/types";
 import { addDomainToVercel, validDomainRegex } from "../utils/domains";
+import { notFound } from "next/navigation";
+import { withSiteAuth } from "../utils/auth";
+import { revalidateTag } from "next/cache";
 
 export async function createSite(
   data: z.infer<typeof formSchema>
@@ -282,133 +288,175 @@ export async function generatedServicesContent(services: Services[]) {
 //   }
 // }
 
-// export const updateSite = async (
-//   formData: FormData,
-//   site: SitesWithoutUsers,
-//   key: string
-// ) => {
-//   const value = formData.get(key) as string;
-//   console.log("ZZZZZZZ", formData, site, key);
+export const updateSite = withSiteAuth(
+  async (
+    data: z.infer<typeof formSchema>,
+    site: Sites,
+    key?: AllFormSchemaKeys
+  ) => {
+    try {
+      const parsed: SafeParseReturnType<
+        z.infer<typeof formSchema>,
+        z.infer<typeof formSchema>
+      > = formSchema.safeParse(data);
 
-// try {
-//   let response;
+      const supabase = createClient();
+      if (!parsed.success) {
+        return {
+          siteId: null,
+          status: "error",
+          text: "Les données ne sont pas bien formatées",
+        };
+      }
+      let updatedData, updatedDataError;
 
-//   if (key === "customDomain") {
-//     if (value.includes("vercel.pub")) {
-//       return {
-//         error: "Cannot use vercel.pub subdomain as your custom domain",
-//       };
+      //   // if (key === "customDomain") {
+      //   //   if (value.includes("vercel.pub")) {
+      //   //     return {
+      //   //       error: "Cannot use vercel.pub subdomain as your custom domain",
+      //   //     };
 
-//       // if the custom domain is valid, we need to add it to Vercel
-//     } else if (validDomainRegex.test(value)) {
-//       response = await db
-//         .update(sites)
-//         .set({
-//           customDomain: value,
-//         })
-//         .where(eq(sites.id, site.id))
-//         .returning()
-//         .then((res) => res[0]);
+      //   //     // if the custom domain is valid, we need to add it to Vercel
+      //   //   } else if (validDomainRegex.test(value)) {
+      //   //     response = await db
+      //   //       .update(sites)
+      //   //       .set({
+      //   //         customDomain: value,
+      //   //       })
+      //   //       .where(eq(sites.id, site.id))
+      //   //       .returning()
+      //   //       .then((res) => res[0]);
 
-//       await Promise.all([
-//         addDomainToVercel(value),
-//         // Optional: add www subdomain as well and redirect to apex domain
-//         // addDomainToVercel(`www.${value}`),
-//       ]);
+      //   //     await Promise.all([
+      //   //       addDomainToVercel(value),
+      //   //       // Optional: add www subdomain as well and redirect to apex domain
+      //   //       addDomainToVercel(`www.${value}`),
+      //   //     ]);
 
-//       // empty value means the user wants to remove the custom domain
-//     } else if (value === "") {
-//       response = await db
-//         .update(sites)
-//         .set({
-//           customDomain: null,
-//         })
-//         .where(eq(sites.id, site.id))
-//         .returning()
-//         .then((res) => res[0]);
-//     }
+      //   // empty value means the user wants to remove the custom domain
+      //   // } else if (value === "") {
+      //   //   response = await db
+      //   //     .update(sites)
+      //   //     .set({
+      //   //       customDomain: null,
+      //   //     })
+      //   //     .where(eq(sites.id, site.id))
+      //   //     .returning()
+      //   //     .then((res) => res[0]);
+      //   // }
 
-//     // if the site had a different customDomain before, we need to remove it from Vercel
-//     if (site.customDomain && site.customDomain !== value) {
-//       response = await removeDomainFromVercelProject(site.customDomain);
+      //   // if the site had a different customDomain before, we need to remove it from Vercel
+      //   // if (site.customDomain && site.customDomain !== value) {
+      //   //   response = await removeDomainFromVercelProject(site.customDomain);
 
-//       /* Optional: remove domain from Vercel team
+      //   //   /* Optional: remove domain from Vercel team
 
-//       // first, we need to check if the apex domain is being used by other sites
-//       const apexDomain = getApexDomain(`https://${site.customDomain}`);
-//       const domainCount = await db.select({ count: count() }).from(sites).where(or(eq(sites.customDomain, apexDomain), ilike(sites.customDomain, `%.${apexDomain}`))).then((res) => res[0].count);
+      //   //   first, we need to check if the apex domain is being used by other sites
+      //   //   const apexDomain = getApexDomain(`https://${site.customDomain}`);
+      //   //   const domainCount = await db.select({ count: count() }).from(sites).where(or(eq(sites.customDomain, apexDomain), ilike(sites.customDomain, `%.${apexDomain}`))).then((res) => res[0].count);
 
-//       // if the apex domain is being used by other sites
-//       // we should only remove it from our Vercel project
-//       if (domainCount >= 1) {
-//         await removeDomainFromVercelProject(site.customDomain);
-//       } else {
-//         // this is the only site using this apex domain
-//         // so we can remove it entirely from our Vercel team
-//         await removeDomainFromVercelTeam(
-//           site.customDomain
-//         );
-//       }
+      //   //   if the apex domain is being used by other sites
+      //   //   we should only remove it from our Vercel project
+      //   //   if (domainCount >= 1) {
+      //   //     await removeDomainFromVercelProject(site.customDomain);
+      //   //   } else {
+      //   //     this is the only site using this apex domain
+      //   //     so we can remove it entirely from our Vercel team
+      //   //     await removeDomainFromVercelTeam(
+      //   //       site.customDomain
+      //   //     );
+      //   //   }
 
-//       */
-//     }
-//   } else if (key === "image" || key === "logo") {
-//     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-//       return {
-//         error:
-//           "Missing BLOB_READ_WRITE_TOKEN token. Note: Vercel Blob is currently in beta – please fill out this form for access: https://tally.so/r/nPDMNd",
-//       };
-//     }
+      //   //   */
+      //   // }
+      //   // } else if (key === "image" || key === "logo") {
+      //   //   if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      //   //     return {
+      //   //       error:
+      //   //         "Missing BLOB_READ_WRITE_TOKEN token. Note: Vercel Blob is currently in beta – please fill out this form for access: https://tally.so/r/nPDMNd",
+      //   //     };
+      //   //   }
 
-//     const file = formData.get(key) as File;
-//     const filename = `${nanoid()}.${file.type.split("/")[1]}`;
+      //   //   const file = formData.get(key) as File;
+      //   //   const filename = `${nanoid()}.${file.type.split("/")[1]}`;
 
-//     const { url } = await put(filename, file, {
-//       access: "public",
-//     });
+      //   //   const { url } = await put(filename, file, {
+      //   //     access: "public",
+      //   //   });
 
-//     const blurhash = key === "image" ? await getBlurDataURL(url) : null;
+      //   //   const blurhash = key === "image" ? await getBlurDataURL(url) : null;
 
-//     response = await db
-//       .update(sites)
-//       .set({
-//         [key]: url,
-//         ...(blurhash && { imageBlurhash: blurhash }),
-//       })
-//       .where(eq(sites.id, site.id))
-//       .returning()
-//       .then((res) => res[0]);
-//   } else {
-//     response = await db
-//       .update(sites)
-//       .set({
-//         [key]: value,
-//       })
-//       .where(eq(sites.id, site.id))
-//       .returning()
-//       .then((res) => res[0]);
-//   }
+      //   //   response = await db
+      //   //     .update(sites)
+      //   //     .set({
+      //   //       [key]: url,
+      //   //       ...(blurhash && { imageBlurhash: blurhash }),
+      //   //     })
+      //   //     .where(eq(sites.id, site.id))
+      //   //     .returning()
+      //   //     .then((res) => res[0]);
+      //   // } else {
+      ({ data: updatedData, error: updatedDataError } = await supabase
+        .from("sites")
+        .update(parsed.data)
+        .eq("id", site.id)
+        .select());
+      // }
 
-//   console.log(
-//     "Updated site data! Revalidating tags: ",
-//     `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-//     `${site.customDomain}-metadata`,
-//   );
-//   revalidateTag(
-//     `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-//   );
-//   site.customDomain && revalidateTag(`${site.customDomain}-metadata`);
+      if (updatedDataError) {
+        return {
+          error: updatedDataError.message,
+        };
+      }
 
-//   return response;
-// } catch (error: any) {
-//   if (error.code === "P2002") {
-//     return {
-//       error: `This ${key} is already taken`,
-//     };
-//   } else {
-//     return {
-//       error: error.message,
-//     };
-//   }
-// }
-// };
+      // console.log(
+      //   "Updated site data! Revalidating tags: ",
+      //   `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+      //   `${site.customDomain}-metadata`
+      // );
+      revalidateTag(
+        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`
+      );
+      site.customDomain && revalidateTag(`${site.customDomain}-metadata`);
+
+      return {
+        status: "success",
+        text: "Site modifié avec succès !",
+      };
+    } catch (error: any) {
+      if (error.code === "P2002") {
+        console.error(`Error updateSite: The key ${key} is already taken`);
+      } else {
+        console.error(`Error updateSite: ${error.message}`);
+      }
+      return {
+        status: "error",
+        text: "Impossbile de modifer le site",
+      };
+    }
+  }
+);
+
+export async function getSiteById(id: number | string) {
+  try {
+    const supabase = createClient();
+    const { data: site } = await supabase
+      .from("sites_with_users")
+      .select("*")
+      .eq("id", Number(id))
+      .single();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!site || user?.id !== site.user_id) {
+      return notFound();
+    }
+    return site;
+  } catch (error: any) {
+    return {
+      status: "error",
+      text: error.message as string,
+    };
+  }
+}

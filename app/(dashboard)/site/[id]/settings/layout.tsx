@@ -1,9 +1,8 @@
 import { ReactNode } from "react";
-import { notFound, redirect } from "next/navigation";
 import SiteSettingsNav from "./nav";
-import { createClient } from "@/utils/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { getSiteById } from "@/lib/serverActions/sitesActions";
 
 export default async function SiteAnalyticsLayout({
   params,
@@ -12,21 +11,7 @@ export default async function SiteAnalyticsLayout({
   params: { id: string };
   children: ReactNode;
 }) {
-  const supabase = createClient();
-  const { data: siteData, error } = await supabase
-    .from("sites_with_users")
-    .select("*")
-    .eq("id", Number(params.id))
-    .single();
-  if (error) {
-    notFound();
-  }
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!siteData || user?.id !== siteData.user_id) {
-    notFound();
-  }
+  const siteData = await getSiteById(params.id);
 
   const url = `https://${siteData.subdomain ? `${siteData.subdomain}.` : ""}${siteData.customDomain ? `${siteData.customDomain}` : `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}`;
   return (

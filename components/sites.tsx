@@ -4,27 +4,28 @@ import SiteCard from "./site-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { toast } from "sonner";
+import { fetchSitesWithFilter } from "@/lib/utils/fetchers";
+import PlaceholderCard from "./placeholder-card";
 
 export default function Sites({ limit }: { limit?: number }) {
   const [allSites, setAllSites] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const supabase = createClient();
 
   const fetchData = async () => {
-    const { data: sites, error } = await supabase
-      .from("sites")
-      .select("*")
-      .order("created_at", { ascending: true })
-      .limit(limit || 100);
-    if (error) {
-      toast.error("Erreur lors de la récupération des sites");
-    }
+    setLoading(true);
+    const sites = await fetchSitesWithFilter(
+      "sites_with_users",
+      [{ method: "order", column: "created_at", value: { ascending: true } }],
+      true
+    );
     setAllSites(sites);
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
-    supabase
+    const subscription = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
@@ -34,17 +35,31 @@ export default function Sites({ limit }: { limit?: number }) {
         }
       )
       .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <PlaceholderCard key={i} />
+        ))}
+      </div>
+    );
+  }
 
   return allSites.length > 0 ? (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {allSites.map((site: Sites) => (
+      {allSites.map((site: any) => (
         <SiteCard key={site.id} data={site} />
       ))}
     </div>
   ) : (
     <div className="mt-20 flex flex-col items-center space-x-4">
-      <h1 className="font-cal text-4xl">No Sites Yet</h1>
+      <h1 className="font-cal text-4xl">Aucun sites</h1>
       <Image
         alt="missing site"
         title="missing site"
@@ -53,7 +68,7 @@ export default function Sites({ limit }: { limit?: number }) {
         height={400}
       />
       <p className="text-lg text-stone-500">
-        You do not have any sites yet. Create one to get started.
+        Vous n'avez aucun sites pour le moment
       </p>
     </div>
   );

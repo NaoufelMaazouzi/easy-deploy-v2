@@ -25,34 +25,14 @@ export default function Overview() {
             <OverviewSitesCTA />
           </Suspense>
         </div>
-        <Suspense
-          fallback={
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <PlaceholderCard key={i} />
-              ))}
-            </div>
-          }
-        >
-          <Sites limit={4} />
-        </Suspense>
+        <Sites limit={4} />
       </div>
 
       <div className="flex flex-col space-y-6">
         <h1 className="font-cal text-3xl font-bold dark:text-white">
           Pages récentes
         </h1>
-        <Suspense
-          fallback={
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <PlaceholderCard key={i} />
-              ))}
-            </div>
-          }
-        >
-          <Pages limit={8} />
-        </Suspense>
+        <Pages limit={8} />
       </div>
     </div>
   );
