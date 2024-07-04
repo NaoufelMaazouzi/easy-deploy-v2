@@ -9,6 +9,8 @@ import Navbar from "../../components/Navbar/index";
 import Footer from "../../components/Footer/Footer";
 import { getSubdomainAndDomain, isValidDomain } from "@/lib/utils";
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {
