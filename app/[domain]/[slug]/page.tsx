@@ -8,6 +8,8 @@ import { isValidDomain } from "@/lib/utils";
 import Image from "next/image";
 import MentionsLegales from "@/components/mentionsLegales";
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {
@@ -49,24 +51,46 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
+  // Fetch all pages with necessary fields
   const allPages = await fetchPagesBySubdomain(
     null,
     null,
     null,
     "subdomain, customDomain, slug"
   );
-  const allPaths = allPages
+
+  // Initialize a map to track page counts per subdomain
+  const subdomainPageCounts = new Map();
+  // Filter and limit to 10 pages per subdomain
+  const limitedPaths = allPages
     .map(({ subdomain, customDomain, slug }) => {
-      return {
-        domain: customDomain
-          ? `${subdomain ? `${subdomain}.${customDomain}` : customDomain}`
-          : `${subdomain ? `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
-        slug,
-      };
+      // Determine the domain key including subdomain
+      const domainKey = customDomain
+        ? `${subdomain ? `${subdomain}.${customDomain}` : customDomain}`
+        : `${subdomain ? `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
+
+      // Initialize count if not already present
+      if (!subdomainPageCounts.has(domainKey)) {
+        subdomainPageCounts.set(domainKey, 0);
+      }
+
+      // Check if we have already fetched 10 pages for this subdomain
+      if (subdomainPageCounts.get(domainKey) < 10) {
+        // Increment count for this subdomain
+        subdomainPageCounts.set(
+          domainKey,
+          subdomainPageCounts.get(domainKey) + 1
+        );
+
+        // Return the path information
+        return { domain: domainKey, slug };
+      } else {
+        // Return null for pages that exceed the limit
+        return null;
+      }
     })
     .filter(Boolean);
-  console.log("ALL PATHS LENGTH: ", allPaths.length);
-  return allPaths;
+  return limitedPaths;
 }
 
 export default async function SitePostPage({

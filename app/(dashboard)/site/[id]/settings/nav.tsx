@@ -25,9 +25,9 @@ export default function SiteSettingsNav() {
       segment: "domains",
     },
     {
-      name: "Appearance",
-      href: `/site/${id}/settings/appearance`,
-      segment: "appearance",
+      name: "Aperçu",
+      href: `/site/${id}/settings/apercu`,
+      segment: "apercu",
     },
   ];
 

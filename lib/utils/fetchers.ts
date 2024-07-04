@@ -195,7 +195,8 @@ export const fetchPagesBySubdomain = async (
     const supabase = createClient();
     let query = supabase
       .from("pages_with_sites_values")
-      .select(valuesToSelect ? valuesToSelect : "*");
+      .select(valuesToSelect ? valuesToSelect : "*")
+      .range(0, 9999999999);
     const isCustomDomain =
       domain &&
       !domain.endsWith(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
@@ -251,7 +252,7 @@ export async function fetchSitesWithFilter(
   filters?: FilterType[]
 ): Promise<Sites[] | []> {
   const supabase = createClient();
-  let query = supabase.from(viewName).select("*");
+  let query = supabase.from(viewName).select("*").range(0, 9999999999);
 
   if (filters) {
     filters.forEach((filter) => {

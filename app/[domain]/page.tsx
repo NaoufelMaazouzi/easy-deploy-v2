@@ -9,6 +9,8 @@ import { isValidDomain } from "@/lib/utils";
 import Faq from "@/components/Faq";
 import { parsePhoneNumber } from "libphonenumber-js";
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const allSites = await fetchSitesWithFilter("sites_without_users");
   const allPaths = allSites
