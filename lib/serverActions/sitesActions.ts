@@ -289,18 +289,17 @@ export async function generatedServicesContent(services: Services[]) {
 // }
 
 export const updateSite = withSiteAuth(
-  async (
-    data: z.infer<typeof formSchema>,
-    site: Sites,
-    key?: AllFormSchemaKeys
-  ) => {
+  async (data: FormData, site: Sites, key?: AllFormSchemaKeys) => {
     try {
-      const parsed: SafeParseReturnType<
-        z.infer<typeof formSchema>,
-        z.infer<typeof formSchema>
-      > = formSchema.safeParse(data);
-
-      const supabase = createClient();
+      const object: any = {};
+      data.forEach((value, key) => {
+        if (key === "favicon") {
+          object[key] = value;
+        } else {
+          object[key] = JSON.parse(value as string);
+        }
+      });
+      const parsed = formSchema.safeParse(object);
       if (!parsed.success) {
         return {
           siteId: null,
@@ -309,6 +308,26 @@ export const updateSite = withSiteAuth(
         };
       }
       let updatedData, updatedDataError;
+      const supabase = createClient();
+
+      if (parsed.data.favicon) {
+        const { error } = await supabase.storage
+          .from("images")
+          .upload(
+            `${site.id}/${parsed.data.favicon.name}`,
+            parsed.data.favicon,
+            {
+              upsert: true,
+            }
+          );
+        if (error) {
+          return {
+            siteId: null,
+            status: "error",
+            text: "Impossible de télécharger l'image",
+          };
+        }
+      }
 
       //   // if (key === "customDomain") {
       //   //   if (value.includes("vercel.pub")) {
@@ -398,7 +417,12 @@ export const updateSite = withSiteAuth(
       //   // } else {
       ({ data: updatedData, error: updatedDataError } = await supabase
         .from("sites")
-        .update(parsed.data)
+        .update({
+          ...parsed.data,
+          favicon: parsed.data.favicon
+            ? `${site.id}/${parsed.data.favicon.name}`
+            : "",
+        })
         .eq("id", site.id)
         .select());
       // }

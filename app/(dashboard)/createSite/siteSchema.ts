@@ -96,6 +96,11 @@ export const formSchema = z.object({
     .nonempty({
       message: "Au moins 1 service est requis",
     }),
+  favicon: z
+    .instanceof(File, {
+      message: "Le fichier doit être une image valide",
+    })
+    .optional(),
 });
 
 type FormSchemaArrayKeys = "secondaryActivityCities";

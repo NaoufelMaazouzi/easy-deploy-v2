@@ -7,7 +7,7 @@ import z from "zod";
 
 export function withSiteAuth(action: any) {
   return async (
-    data: z.infer<typeof formSchema> | null,
+    data: z.infer<typeof formSchema> | FormData,
     siteId: number,
     key?: AllFormSchemaKeys | null,
     successText?: string | null

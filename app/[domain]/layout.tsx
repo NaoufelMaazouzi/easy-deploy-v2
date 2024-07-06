@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { fetchPagesBySubdomain, getSiteData } from "@/lib/utils/fetchers";
-import { fontMapper } from "@/styles/fonts";
 import { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "../../styles/createdSites.css";

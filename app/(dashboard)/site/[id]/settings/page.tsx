@@ -6,7 +6,7 @@ import {
 } from "@/app/(dashboard)/createSite/siteSchema";
 import { getSiteById, updateSite } from "@/lib/serverActions/sitesActions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "@/lib/utils/fr-zod";
 import {
@@ -23,6 +23,30 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/phone-input";
 import { SearchBar } from "@/components/SearchBar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SafeParseReturnType } from "zod";
+
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
+
+function getImageData(event: ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files![0];
+  if (file && file.size > MAX_FILE_SIZE) {
+    toast.error("La taille du fichier ne doit pas dépasser 1 Mo.");
+    return { files: "", displayUrl: "" };
+  }
+  // FileList is immutable, so we need to create a new one
+  const dataTransfer = new DataTransfer();
+
+  // Add newly uploaded images
+  Array.from(event.target.files!).forEach((image) =>
+    dataTransfer.items.add(image)
+  );
+
+  const files = dataTransfer.files;
+
+  const displayUrl = URL.createObjectURL(file);
+  return { files, displayUrl };
+}
 
 export default function SiteSettingsIndex({
   params,
@@ -31,6 +55,7 @@ export default function SiteSettingsIndex({
 }) {
   const [siteData, setSiteData] = useState<any>(null);
   const [loadingUpdateSite, setLoadingUpdateSite] = useState(false);
+  const [preview, setPreview] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,6 +69,9 @@ export default function SiteSettingsIndex({
       try {
         const data = await getSiteById(params.id);
         setSiteData(data);
+        setPreview(
+          `https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/public/images/${data.favicon}`
+        );
 
         if (data) {
           for (const [key, value] of Object.entries(data)) {
@@ -67,16 +95,33 @@ export default function SiteSettingsIndex({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoadingUpdateSite(true);
-      if (!formSchema.safeParse(values).success) {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === "favicon") {
+          formData.append(key, value as File);
+        } else {
+          formData.append(key, JSON.stringify(value));
+        }
+      });
+      const data: any = {};
+      formData.forEach((value, key) => {
+        if (key === "favicon") {
+          data[key] = value;
+        } else {
+          data[key] = JSON.parse(value as string);
+        }
+      });
+      const parsed: SafeParseReturnType<
+        z.infer<typeof formSchema>,
+        z.infer<typeof formSchema>
+      > = formSchema.safeParse(data);
+      if (!parsed.success) {
         setLoadingUpdateSite(false);
         return toast.error("Les données entrées ne sont pas correctes");
       }
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(values)) {
-        formData.append(key, JSON.stringify(value));
-      }
+
       const { status, text }: { status: "success" | "error"; text: string } =
-        await updateSite(values, Number(params.id));
+        await updateSite(formData, Number(params.id));
       toast[status](text);
     } catch (error) {
       toast.error("Impossible de mettre à jour le site");
@@ -256,6 +301,36 @@ export default function SiteSettingsIndex({
                     <FormMessage />
                   </FormItem>
                 </div>
+              )}
+            />
+
+            <Avatar className="w-24 h-24">
+              <AvatarImage src={preview} />
+              <AvatarFallback>BU</AvatarFallback>
+            </Avatar>
+            <FormField
+              control={control}
+              name="favicon"
+              render={({ field: { onChange, value, ...rest } }) => (
+                <>
+                  <FormItem>
+                    <FormLabel>
+                      L'icône de votre site (de taille 16x16 ou 32x32)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        {...rest}
+                        onChange={(event) => {
+                          const { files, displayUrl } = getImageData(event);
+                          setPreview(displayUrl);
+                          onChange(files[0]);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                </>
               )}
             />
           </div>

@@ -265,3 +265,58 @@ export const handleAppendInArray = (
     return toast.error(errorText);
   }
 };
+
+export const flattenObject = (obj: any, formData: FormData, prefix = "") => {
+  Object.entries(obj).forEach(([key, value]) => {
+    const prefixedKey = prefix ? `${prefix}.${key}` : key;
+    if (value instanceof File) {
+      formData.append(prefixedKey, value);
+    } else if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (item instanceof Object && !(item instanceof File)) {
+          flattenObject(item, formData, `${prefixedKey}[${index}]`);
+        } else {
+          formData.append(`${prefixedKey}[${index}]`, item as any);
+        }
+      });
+    } else if (value instanceof Object && !(value instanceof Date)) {
+      flattenObject(value, formData, prefixedKey);
+    } else {
+      formData.append(prefixedKey, value as any);
+    }
+  });
+};
+
+export const unflattenObject = (data: any): any => {
+  const result: any = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    const keys = key.split(/[.[\]]+/).filter(Boolean); // Split keys by dots and brackets
+
+    let currentObj = result;
+    keys.forEach((subKey, index) => {
+      if (index === keys.length - 1) {
+        // Last key, assign value
+        if (subKey === "radius") {
+          currentObj[subKey] = parseInt(value as string); // Parse value as integer for 'radius'
+        } else {
+          currentObj[subKey] = value; // Keep other values as they are
+        }
+      } else {
+        // Create nested objects as needed
+        if (!currentObj[subKey]) {
+          // Check if current key is a number, create an array if necessary
+          const nextKey = keys[index + 1];
+          if (!isNaN(parseInt(nextKey))) {
+            currentObj[subKey] = [];
+          } else {
+            currentObj[subKey] = {};
+          }
+        }
+        currentObj = currentObj[subKey]; // Move to next level
+      }
+    });
+  });
+
+  return result;
+};
