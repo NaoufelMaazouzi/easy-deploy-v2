@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import LoadingDots from "@/components/icons/loading-dots";
 import va from "@vercel/analytics";
 import { Button } from "./ui/button";
-import { createPage } from "@/lib/serverActions/pageActions";
+// import { createPage } from "@/lib/serverActions/pageActions";
 
 export default function CreatePageButton() {
   const router = useRouter();
@@ -16,13 +16,14 @@ export default function CreatePageButton() {
 
   return (
     <Button
-      onClick={() =>
-        startTransition(async () => {
-          const page = await createPage(null, Number(id), null);
-          va.track("Created Post");
-          router.refresh();
-          router.push(`/page/${page.id}`);
-        })
+      onClick={
+        () => console.log("okkk")
+        // startTransition(async () => {
+        //   const page = await createPage(null, Number(id), null);
+        //   va.track("Created Post");
+        //   router.refresh();
+        //   router.push(`/page/${page.id}`);
+        // })
       }
       disabled={isPending}
     >
