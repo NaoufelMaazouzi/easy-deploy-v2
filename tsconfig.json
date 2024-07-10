@@ -28,7 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "utils/supabase/server.mtss"
+    "utils/supabase/server-client.mtss"
   ],
   "exclude": ["node_modules"]
 }

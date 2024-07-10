@@ -1,11 +1,11 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server-client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-const supabase = createClient();
 
 export const signInWithOAuth = async (provider: "google" | "github") => {
+  const supabase = createSupabaseServerClient();
   const origin = headers().get("origin");
   const { error, data } = await supabase.auth.signInWithOAuth({
     provider,
@@ -15,15 +15,22 @@ export const signInWithOAuth = async (provider: "google" | "github") => {
   });
 
   if (error) {
-    console.log(error);
-  } else {
+    console.log("Error signInWithOAuth:", error);
+  } else if (data.url) {
     return redirect(data.url);
   }
+};
+
+export const signOut = async () => {
+  const supabase = createSupabaseServerClient();
+  await supabase.auth.signOut();
+  return redirect("/login");
 };
 
 export const signInWithEmail = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const supabase = createSupabaseServerClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -41,6 +48,7 @@ export const signUpWithEmail = async (formData: FormData) => {
   const origin = headers().get("origin");
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const supabase = createSupabaseServerClient();
 
   const { error } = await supabase.auth.signUp({
     email,

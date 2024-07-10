@@ -3,14 +3,14 @@
 import SiteCard from "./site-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import PlaceholderCard from "./placeholder-card";
 import { fetchSitesWithFilterFromServer } from "@/lib/serverActions/sitesActions";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 export default function Sites({ limit }: { limit?: number }) {
   const [allSites, setAllSites] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
 
   const fetchData = async () => {
     setLoading(true);

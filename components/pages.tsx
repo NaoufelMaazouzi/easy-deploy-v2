@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import PageCard from "./page-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import throttle from "lodash/throttle";
 import PlaceholderCard from "./placeholder-card"; // Assurez-vous que PlaceholderCard est importé
 import { fetchPagesWithFilter } from "@/lib/serverActions/pageActions";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 export default function Pages({
   siteId,
@@ -18,7 +18,7 @@ export default function Pages({
 }) {
   const [allPages, setAllPages] = useState<PagesWithSitesValues[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
 
   const fetchData = async () => {
     setLoading(true);

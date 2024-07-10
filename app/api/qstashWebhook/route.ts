@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
 import { NextResponse } from "next/server";
 
 const decodeBase64 = (base64: string) => {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         firstContent: firstGeneratedContent,
         secondContent: secondGeneratedContent,
       } = parsedObj;
-      const supabase = createClient();
+      const supabase = createSupabaseServerComponentClient();
       const { error } = await supabase
         .from("pages")
         .update({

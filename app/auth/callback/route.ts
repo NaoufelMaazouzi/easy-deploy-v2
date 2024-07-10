@@ -1,29 +1,20 @@
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server-client";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
-  const origin = requestUrl.origin;
-  console.log("teeeest", requestUrl, origin, code);
+  const { searchParams, origin } = new URL(request.url);
 
-  if (!code) {
-    return NextResponse.redirect(`${origin}/error`);
-  }
+  const code = searchParams.get("code");
 
-  const supabase = createClient();
+  if (code) {
+    const supabase = createSupabaseServerClient();
 
-  try {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (error) {
-      console.log("Error exchanging code for session:", error);
-      return NextResponse.redirect(`${origin}/error`);
+    if (!error) {
+      return NextResponse.redirect(`${origin}/sites`);
     }
-
-    return NextResponse.redirect(`${origin}/sites`);
-  } catch (error) {
-    console.log("Unexpected error:", error);
-    return NextResponse.redirect(`${origin}/error`);
   }
+
+  return NextResponse.redirect(`${origin}/auth/auth-error`);
 }

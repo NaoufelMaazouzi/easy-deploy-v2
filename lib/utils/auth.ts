@@ -2,7 +2,7 @@ import {
   AllFormSchemaKeys,
   formSchema,
 } from "@/app/(dashboard)/createSite/siteSchema";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
 import z from "zod";
 
 export function withSiteAuth(action: any) {
@@ -12,7 +12,7 @@ export function withSiteAuth(action: any) {
     key?: AllFormSchemaKeys | null,
     successText?: string | null
   ) => {
-    const supabase = createClient();
+    const supabase = createSupabaseServerComponentClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -48,7 +48,7 @@ export function withPostAuth(action: any) {
     key: string | null,
     successText: string
   ) => {
-    const supabase = createClient();
+    const supabase = createSupabaseServerComponentClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

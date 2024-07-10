@@ -1,16 +1,16 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { revalidateTag } from "next/cache";
 import { FilterType, updatePageResult } from "../utils/types";
 import { randomString } from "../utils";
 import { withPostAuth, withSiteAuth } from "../utils/auth";
 import { notFound } from "next/navigation";
+import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
 
 export const updatePage = async (
   data: PagesWithSitesValues
 ): Promise<updatePageResult> => {
-  const supabase = createClient();
+  const supabase = createSupabaseServerComponentClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -91,7 +91,7 @@ export const updatePageMetadata = withPostAuth(
       //     },
       //   });
       // } else {
-      const supabase = createClient();
+      const supabase = createSupabaseServerComponentClient();
       const { error } = await supabase
         .from("pages")
         .update({
@@ -139,7 +139,7 @@ export const updatePageMetadata = withPostAuth(
 );
 
 export const createPage = withSiteAuth(async (_: FormData, site: Sites) => {
-  const supabase = createClient();
+  const supabase = createSupabaseServerComponentClient();
   const { data, error } = await supabase
     .from("pages")
     .insert({
@@ -197,7 +197,7 @@ export const createPage = withSiteAuth(async (_: FormData, site: Sites) => {
 
 export async function getPageById(id: number | string) {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerComponentClient();
     const { data, error } = await supabase
       .from("pages_with_sites_values")
       .select("*")
@@ -224,7 +224,7 @@ export async function fetchPagesWithFilter(
   withAuth?: boolean,
   single?: boolean
 ): Promise<PagesWithSitesValues[] | []> {
-  const supabase = createClient();
+  const supabase = createSupabaseServerComponentClient();
   let query = supabase.from(viewName).select("*");
 
   if (filters) {

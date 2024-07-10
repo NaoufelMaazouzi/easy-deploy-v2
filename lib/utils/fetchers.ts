@@ -2,10 +2,10 @@
 
 import { unstable_cache } from "next/cache";
 // import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
-import { createClient } from "@/utils/supabase/client";
 
 import { getSubdomainAndDomain } from ".";
 import { FilterType } from "./types";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 // export async function getAllSites() {
 //   let query = supabase.from("sites_without_users").select("*");
@@ -21,7 +21,7 @@ import { FilterType } from "./types";
 // }
 
 // const fetchSite = async (subdomain: string | null, domain?: string | null) => {
-// const supabase = createClient();
+// const supabase = createSupabaseBrowserClient();
 //   let query = supabase.from("sites_without_users").select("*");
 //   if (subdomain) {
 //     query = query.eq("subdomain", subdomain);
@@ -160,7 +160,7 @@ export async function getPageData(
 
   return await unstable_cache(
     async () => {
-      const supabase = createClient();
+      const supabase = createSupabaseBrowserClient();
       let query = supabase
         .from("pages_with_sites_values")
         .select("*")
@@ -192,7 +192,7 @@ export const fetchPagesBySubdomain = async (
   valuesToSelect?: string | null
 ): Promise<PagesWithSitesValues[] | []> => {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseBrowserClient();
     let query = supabase
       .from("pages_with_sites_values")
       .select(valuesToSelect ? valuesToSelect : "*")
@@ -229,7 +229,7 @@ export const fetchPagesBySubdomain = async (
 };
 
 // export async function fetchSiteById(id: string): Promise<Sites | null> {
-//   const supabase = createClient();
+//   const supabase = createSupabaseBrowserClient();
 //   let query = supabase.from("sites_without_users").select("*").eq("id", id);
 
 //   const { data, error } = await query;
@@ -251,7 +251,7 @@ export async function fetchSitesWithFilter(
   viewName: string,
   filters?: FilterType[]
 ): Promise<Sites[] | []> {
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
   let query = supabase.from(viewName).select("*").range(0, 9999999999);
 
   if (filters) {
@@ -281,7 +281,7 @@ export async function fetchSingleSiteWithFilter(
   viewName: string,
   filters?: FilterType[]
 ): Promise<Sites | null> {
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
   let query = supabase.from(viewName).select("*");
 
   if (filters) {
@@ -307,7 +307,7 @@ export async function fetchSinglePageWithFilter(
   viewName: string,
   filters?: FilterType[]
 ): Promise<PagesWithSitesValues | null> {
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
   let query = supabase.from(viewName).select("*");
 
   if (filters) {

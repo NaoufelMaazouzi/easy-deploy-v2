@@ -23,12 +23,12 @@ import {
   formSchema,
 } from "@/app/(dashboard)/createSite/siteSchema";
 import { SafeParseReturnType } from "zod";
-import { createClient } from "@/utils/supabase/server";
 import { CreateSiteResult, FilterType } from "../utils/types";
 import { addDomainToVercel, validDomainRegex } from "../utils/domains";
 import { notFound } from "next/navigation";
 import { withSiteAuth } from "../utils/auth";
 import { revalidateTag } from "next/cache";
+import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
 
 export async function createSite(
   data: z.infer<typeof formSchema>
@@ -47,7 +47,7 @@ export async function createSite(
       };
     }
 
-    const supabase = createClient();
+    const supabase = createSupabaseServerComponentClient();
     const { data: createdSite, error: createdSiteError } = await supabase
       .from("sites")
       .insert(parsed.data)
@@ -308,7 +308,7 @@ export const updateSite = withSiteAuth(
         };
       }
       let updatedData, updatedDataError;
-      const supabase = createClient();
+      const supabase = createSupabaseServerComponentClient();
 
       if (parsed.data.favicon) {
         const { error } = await supabase.storage
@@ -463,7 +463,7 @@ export const updateSite = withSiteAuth(
 
 export async function getSiteById(id: number | string) {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerComponentClient();
     const { data: site } = await supabase
       .from("sites_with_users")
       .select("*")
@@ -490,7 +490,7 @@ export async function fetchSitesWithFilterFromServer(
   filters?: FilterType[],
   withAuth?: boolean
 ): Promise<Sites[] | []> {
-  const supabase = createClient();
+  const supabase = createSupabaseServerComponentClient();
   let query = supabase.from(viewName).select("*");
 
   if (filters) {

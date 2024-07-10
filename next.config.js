@@ -11,6 +11,10 @@ const nextConfig = {
       { hostname: "www.google.com" },
       { hostname: "flag.vercel.app" },
       { hostname: "illustrations.popsy.co" },
+      {
+        protocol: "https",
+        hostname: '"lh3.googleusercontent.com"',
+      },
     ],
   },
   async rewrites() {
