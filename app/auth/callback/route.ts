@@ -17,13 +17,13 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error("Error exchanging code for session:", error);
+      console.log("Error exchanging code for session:", error);
       return NextResponse.redirect(`${origin}/login`);
     }
 
     return NextResponse.redirect(`${origin}/sites`);
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.log("Unexpected error:", error);
     return NextResponse.redirect(`${origin}/login`);
   }
 }
