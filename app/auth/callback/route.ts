@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   console.log("teeeest", requestUrl, origin, code);
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/error`);
+    return NextResponse.redirect(`${origin}/login`);
   }
 
   const supabase = createClient();
@@ -18,12 +18,12 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("Error exchanging code for session:", error);
-      return NextResponse.redirect(`${origin}/error`);
+      return NextResponse.redirect(`${origin}/login`);
     }
 
     return NextResponse.redirect(`${origin}/sites`);
   } catch (error) {
     console.error("Unexpected error:", error);
-    return NextResponse.redirect(`${origin}/error`);
+    return NextResponse.redirect(`${origin}/login`);
   }
 }
