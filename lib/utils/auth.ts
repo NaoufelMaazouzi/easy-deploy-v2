@@ -45,7 +45,7 @@ export function withPageAuth(action: any) {
   return async (
     pageId: number | null,
     formData?: z.infer<typeof formSchema> | FormData,
-    key?: AllFormSchemaKeys | null,
+    key?: string | null,
     successText?: string | null
   ) => {
     const supabase = createSupabaseServerComponentClient();
