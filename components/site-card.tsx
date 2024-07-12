@@ -30,7 +30,7 @@ export default function SiteCard({ data }: { data: Sites }) {
       <Credenza>
         <Link
           href={`/site/${data.id}`}
-          className="flex flex-col overflow-hidden rounded-lg"
+          className="flex flex-col overflow-hidden rounded-t-lg"
         >
           <BlurImage
             alt={data.name ?? "Card thumbnail"}
