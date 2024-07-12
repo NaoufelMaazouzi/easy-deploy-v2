@@ -32,7 +32,7 @@ export default function Pages({
     setLoading(false);
   };
 
-  const throttledFetchPageData = throttle(fetchData, 10000, {
+  const throttledFetchPageData = throttle(fetchData, 20000, {
     leading: false,
     trailing: true,
   });
