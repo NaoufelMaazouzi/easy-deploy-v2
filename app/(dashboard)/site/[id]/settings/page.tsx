@@ -121,7 +121,7 @@ export default function SiteSettingsIndex({
       }
 
       const { status, text }: { status: "success" | "error"; text: string } =
-        await updateSite(formData, Number(params.id));
+        await updateSite(Number(params.id), formData);
       toast[status](text);
     } catch (error) {
       toast.error("Impossible de mettre à jour le site");
