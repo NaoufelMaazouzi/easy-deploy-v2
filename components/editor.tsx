@@ -68,8 +68,8 @@ export default function Editor({
             startTransitionPublishing(async () => {
               const { status, text }: updatePageResult =
                 await updatePageMetadata(
-                  formData,
                   data.id,
+                  formData,
                   "published",
                   `Page ${data.published ? "dépubliée" : "publiée"} avec succès`
                 );
