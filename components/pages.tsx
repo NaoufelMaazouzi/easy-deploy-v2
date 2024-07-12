@@ -1,11 +1,10 @@
 "use client";
 
-import { redirect } from "next/navigation";
 import PageCard from "./page-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import throttle from "lodash/throttle";
-import PlaceholderCard from "./placeholder-card"; // Assurez-vous que PlaceholderCard est importé
+import PlaceholderCard from "./placeholder-card";
 import { fetchPagesWithFilter } from "@/lib/serverActions/pageActions";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
@@ -33,14 +32,14 @@ export default function Pages({
     setLoading(false);
   };
 
-  const throttledFetchPageData = throttle(fetchData, 20000, {
+  const throttledFetchPageData = throttle(fetchData, 10000, {
     leading: false,
     trailing: true,
   });
 
   useEffect(() => {
     fetchData();
-    const subscription = supabase
+    const updateSubscription = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
@@ -56,8 +55,25 @@ export default function Pages({
       )
       .subscribe();
 
+    const deleteSubscription = supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "pages",
+          // filter: `id=eq.${pageData.id}`,
+        },
+        (payload) => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
     return () => {
-      subscription.unsubscribe();
+      updateSubscription.unsubscribe();
+      deleteSubscription.unsubscribe();
     };
   }, []);
 
@@ -74,7 +90,9 @@ export default function Pages({
   return allPages.length > 0 ? (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {allPages.map((page: any) => (
-        <PageCard key={page.id} data={page} />
+        <div key={page.id} className="relative">
+          <PageCard data={page} />
+        </div>
       ))}
     </div>
   ) : (

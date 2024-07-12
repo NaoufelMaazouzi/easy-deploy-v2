@@ -1,26 +1,72 @@
 import BlurImage from "@/components/blur-image";
 import { placeholderBlurhash, random } from "@/lib/utils";
-import { BarChart, ExternalLink } from "lucide-react";
+import { BarChart } from "lucide-react";
 import Link from "next/link";
-
+import {
+  Credenza,
+  CredenzaBody,
+  CredenzaClose,
+  CredenzaContent,
+  CredenzaFooter,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaTrigger,
+} from "./ui/credenza";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { deleteSite } from "@/lib/serverActions/sitesActions";
 export default function SiteCard({ data }: { data: Sites }) {
   const url = `https://${data.subdomain ? `${data.subdomain}.` : ""}${data.customDomain ? `${data.customDomain}` : `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}`;
+
+  const handleDeleteSite = async () => {
+    const { status, text }: { status: "success" | "error"; text: string } =
+      await deleteSite(Number(data.id));
+    toast[status](text);
+  };
+
   return (
     <div className="relative rounded-lg border border-stone-200 pb-10 shadow-md transition-all hover:shadow-xl dark:border-stone-700 dark:hover:border-white">
+      <Credenza>
+        <Link
+          href={`/site/${data.id}`}
+          className="flex flex-col overflow-hidden rounded-lg"
+        >
+          <BlurImage
+            alt={data.name ?? "Card thumbnail"}
+            title={data.name ?? "Card thumbnail"}
+            width={500}
+            height={400}
+            className="h-44 object-cover"
+            src={"/images/placeholder.png"}
+            placeholder="blur"
+            blurDataURL={placeholderBlurhash}
+          />
+        </Link>
+        <CredenzaTrigger asChild>
+          <XMarkIcon className="h-5 w-5 absolute top-2 right-2 cursor-pointer text-black dark:hover:text-red-600" />
+        </CredenzaTrigger>
+        <CredenzaContent>
+          <CredenzaHeader>
+            <CredenzaTitle>Attention</CredenzaTitle>
+          </CredenzaHeader>
+          <CredenzaBody>
+            Êtes-vous sûr de vouloir supprimer ce site ?
+          </CredenzaBody>
+          <CredenzaFooter>
+            <CredenzaClose asChild>
+              <Button>Non</Button>
+            </CredenzaClose>
+            <CredenzaClose asChild>
+              <Button onClick={handleDeleteSite}>Oui</Button>
+            </CredenzaClose>
+          </CredenzaFooter>
+        </CredenzaContent>
+      </Credenza>
       <Link
         href={`/site/${data.id}`}
         className="flex flex-col overflow-hidden rounded-lg"
       >
-        <BlurImage
-          alt={data.name ?? "Card thumbnail"}
-          title={data.name ?? "Card thumbnail"}
-          width={500}
-          height={400}
-          className="h-44 object-cover"
-          src={"/images/placeholder.png"}
-          placeholder="blur"
-          blurDataURL={placeholderBlurhash}
-        />
         <div className="border-t border-stone-200 p-4 dark:border-stone-700">
           <h3 className="my-0 truncate font-cal text-xl font-bold tracking-wide dark:text-white">
             {data.name}

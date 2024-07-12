@@ -3,7 +3,7 @@
 import { revalidateTag } from "next/cache";
 import { FilterType, updatePageResult } from "../utils/types";
 import { randomString } from "../utils";
-import { withPostAuth, withSiteAuth } from "../utils/auth";
+import { withPageAuth, withSiteAuth } from "../utils/auth";
 import { notFound } from "next/navigation";
 import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
 
@@ -62,7 +62,7 @@ export const updatePage = async (
   }
 };
 
-export const updatePageMetadata = withPostAuth(
+export const updatePageMetadata = withPageAuth(
   async (
     formData: FormData,
     page: PagesWithSitesValues,
@@ -138,7 +138,7 @@ export const updatePageMetadata = withPostAuth(
   }
 );
 
-export const createPage = withSiteAuth(async (_: FormData, site: Sites) => {
+export const createPage = withSiteAuth(async (site: Sites) => {
   const supabase = createSupabaseServerComponentClient();
   const { data, error } = await supabase
     .from("pages")
@@ -289,3 +289,45 @@ export async function fetchPagesWithFilter(
     return [];
   }
 }
+
+export const deletePage = withPageAuth(
+  async (page: PagesWithSitesValues): Promise<updatePageResult> => {
+    try {
+      const supabase = createSupabaseServerComponentClient();
+      const { error } = await supabase
+        .from("pages")
+        .delete()
+        .eq("id", page.id)
+        .select();
+
+      if (error) {
+        return {
+          status: "error",
+          text: "Erreur lors de la suppression de la page",
+        };
+      }
+
+      revalidateTag(
+        `${page.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-pages`
+      );
+      revalidateTag(
+        `${page.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${page.slug}`
+      );
+
+      // if the site has a custom domain, we need to revalidate those tags too
+      page.customDomain &&
+        (revalidateTag(`${page.customDomain}-pages`),
+        revalidateTag(`${page.customDomain}-${page.slug}`));
+
+      return {
+        status: "success",
+        text: "Page supprimée avec succès",
+      };
+    } catch (error: any) {
+      return {
+        status: "error",
+        text: error.message as string,
+      };
+    }
+  }
+);

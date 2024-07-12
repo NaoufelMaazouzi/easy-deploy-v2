@@ -7,8 +7,8 @@ import z from "zod";
 
 export function withSiteAuth(action: any) {
   return async (
-    data: z.infer<typeof formSchema> | FormData,
     siteId: number,
+    data?: z.infer<typeof formSchema> | FormData,
     key?: AllFormSchemaKeys | null,
     successText?: string | null
   ) => {
@@ -37,16 +37,16 @@ export function withSiteAuth(action: any) {
       };
     }
 
-    return action(data, site, key, successText);
+    return action(site, data, key, successText);
   };
 }
 
-export function withPostAuth(action: any) {
+export function withPageAuth(action: any) {
   return async (
-    formData: FormData | null,
     pageId: number | null,
-    key: string | null,
-    successText: string
+    formData?: z.infer<typeof formSchema> | FormData,
+    key?: AllFormSchemaKeys | null,
+    successText?: string | null
   ) => {
     const supabase = createSupabaseServerComponentClient();
     const {
@@ -74,6 +74,6 @@ export function withPostAuth(action: any) {
       };
     }
 
-    return action(formData, page, key, successText);
+    return action(page, formData, key, successText);
   };
 }

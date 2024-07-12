@@ -1,7 +1,7 @@
 "use server";
 
 // import { revalidateTag } from "next/cache";
-// import { withPostAuth, withSiteAuth } from "../auth";
+// import { withPageAuth, withSiteAuth } from "../auth";
 // import {
 //   addDomainToVercel,
 //   // getApexDomain,
@@ -71,7 +71,14 @@ export async function createSite(
         addDomainToVercel(`www.${siteCustomDomain}`),
       ]);
     }
-    const generatedPages = createServiceCityObjects(parsed.data, siteId);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const generatedPages = createServiceCityObjects(
+      parsed.data,
+      siteId,
+      user?.id
+    );
 
     const { error: createdPagesError } = await supabase
       .from("pages")
@@ -289,7 +296,7 @@ export async function generatedServicesContent(services: Services[]) {
 // }
 
 export const updateSite = withSiteAuth(
-  async (data: FormData, site: Sites, key?: AllFormSchemaKeys) => {
+  async (site: Sites, data: FormData, key?: AllFormSchemaKeys) => {
     try {
       const object: any = {};
       data.forEach((value, key) => {
@@ -533,3 +540,31 @@ export async function fetchSitesWithFilterFromServer(
     return [];
   }
 }
+
+export const deleteSite = withSiteAuth(async (site: Sites) => {
+  try {
+    const supabase = createSupabaseServerComponentClient();
+    const { error } = await supabase
+      .from("sites")
+      .delete()
+      .eq("id", site.id)
+      .select();
+
+    if (error) {
+      return {
+        status: "error",
+        text: "Erreur lors de la suppression du site",
+      };
+    }
+
+    return {
+      status: "success",
+      text: "Site supprimé avec succès",
+    };
+  } catch (error: any) {
+    return {
+      status: "error",
+      text: error.message as string,
+    };
+  }
+});

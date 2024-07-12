@@ -133,7 +133,8 @@ export const getSubdomainAndDomain = (url: string) => {
 
 export const createServiceCityObjects = (
   data: FormSchema,
-  siteId: number
+  siteId: number,
+  userId?: string
 ): Pages[] => {
   const { services, mainActivityCity, secondaryActivityCities } = data;
   const allCities = [mainActivityCity, ...secondaryActivityCities];
@@ -159,6 +160,7 @@ export const createServiceCityObjects = (
         service: service.name,
         contentGenerated: false,
         city: cleanedCityName,
+        user_id: userId,
       };
     })
   );
