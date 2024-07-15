@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
-import { notFound } from "next/navigation";
-import { fetchPagesBySubdomain, getSiteData } from "@/lib/utils/fetchers";
+import { getSiteData } from "@/lib/utils/fetchers";
 import { Metadata } from "next";
-import { getSubdomainAndDomain, isValidDomain } from "@/lib/utils";
+import { isValidDomain } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
 export const revalidate = 5;

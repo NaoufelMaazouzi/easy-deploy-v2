@@ -6,14 +6,25 @@ import Banner from "./components/Banner";
 import Services from "./components/Services";
 import Features from "./components/Features";
 import { SiteDataModel, data } from "./data";
+import { isValidDomain } from "@/lib/utils";
+import { getSiteData } from "@/lib/utils/fetchers";
 
 export const revalidate = 5;
 
 export default async function SiteHomePage({
-  siteData,
+  params,
 }: {
-  siteData: SitesWithoutUsers;
+  params: { domain: string };
 }) {
+  const domain = decodeURIComponent(params.domain);
+  let siteData;
+  if (
+    domain !== "images" &&
+    !domain.endsWith(".png") &&
+    isValidDomain(domain)
+  ) {
+    siteData = await getSiteData(domain);
+  }
   if (!siteData) {
     notFound();
   }
@@ -23,6 +34,11 @@ export default async function SiteHomePage({
       parsePhoneNumber(siteData.contactPhone)?.formatNational() ||
       siteData.contactPhone;
   }
+
+  if (!siteData) {
+    notFound();
+  }
+
   const siteContent = data({
     phoneNumberParsed,
     model: (siteData.model || "plombier") as SiteDataModel,

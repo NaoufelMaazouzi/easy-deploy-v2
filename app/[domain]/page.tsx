@@ -1,7 +1,4 @@
-import { notFound } from "next/navigation";
-import { getSiteData, fetchSitesWithFilter } from "@/lib/utils/fetchers";
-import { isValidDomain } from "@/lib/utils";
-import { parsePhoneNumber } from "libphonenumber-js";
+import { fetchSitesWithFilter } from "@/lib/utils/fetchers";
 import dynamic from "next/dynamic";
 
 export const revalidate = 5;
@@ -27,25 +24,7 @@ export default async function SiteHomePage({
 }: {
   params: { domain: string };
 }) {
-  const domain = decodeURIComponent(params.domain);
-  let siteData;
-  if (
-    domain !== "images" &&
-    !domain.endsWith(".png") &&
-    isValidDomain(domain)
-  ) {
-    siteData = await getSiteData(domain);
-  }
-  if (!siteData) {
-    notFound();
-  }
-  let phoneNumberParsed: string | undefined;
-  if (siteData.contactPhone) {
-    phoneNumberParsed =
-      parsePhoneNumber(siteData.contactPhone)?.formatNational() ||
-      siteData.contactPhone;
-  }
   const PageComponent = dynamic(() => import("../(models)/model1/page"));
 
-  return <PageComponent siteData={siteData} />;
+  return <PageComponent params={params} />;
 }
