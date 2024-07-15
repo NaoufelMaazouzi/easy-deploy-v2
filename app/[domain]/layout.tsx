@@ -74,32 +74,7 @@ export default async function SiteLayout({
   params: { domain: string };
   children: ReactNode;
 }) {
-  const domain = decodeURIComponent(params.domain);
-  let siteData;
-  const isCustomDomain =
-    !domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
-  const { domain: newDomain, subdomain: newSubdomain } =
-    getSubdomainAndDomain(domain);
-  const allPages = await fetchPagesBySubdomain(newSubdomain, newDomain, true);
-  if (
-    domain !== "images" &&
-    !domain.endsWith(".png") &&
-    isValidDomain(domain)
-  ) {
-    siteData = await getSiteData(domain, isCustomDomain);
-  }
-
-  if (!siteData) {
-    notFound();
-  }
   const LayoutComponent = dynamic(() => import("../(models)/model1/layout"));
 
-  return (
-    <LayoutComponent
-      children={children}
-      siteData={siteData}
-      allPages={allPages}
-    />
-  );
+  return <LayoutComponent children={children} params={params} />;
 }
