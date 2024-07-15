@@ -213,7 +213,9 @@ export default function CreateSitePage() {
                         />
                       </FormControl>
                       <div className="flex items-center rounded-r-lg border border-l-0 border-stone-200 bg-stone-100 px-3 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400">
-                        .{process.env.NEXT_PUBLIC_ROOT_DOMAIN}
+                        {customDomain
+                          ? customDomain
+                          : `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}
                       </div>
                       <FormMessage />
                     </div>
@@ -246,6 +248,31 @@ export default function CreateSitePage() {
                     <DomainConfiguration domain={customDomain} />
                   )}
                 </>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              {...register("model")}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Modèle</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisissez le modèle de votre site" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="vtc">Modèle VTC</SelectItem>
+                      <SelectItem value="plombier">Modèle PLOMBIER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
             />
 

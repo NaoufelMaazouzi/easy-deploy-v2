@@ -53,6 +53,7 @@ export const formSchema = z.object({
     required_error: "Le sous-domaine est requis",
     invalid_type_error: "Le sous-domaine doit être une chaîne de caractères",
   }),
+  model: z.string(),
   description: z
     .string({
       required_error: "La description est requise",

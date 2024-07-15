@@ -1,14 +1,11 @@
 import { ReactNode } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { fetchPagesBySubdomain, getSiteData } from "@/lib/utils/fetchers";
 import { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import "../../styles/createdSites.css";
-import Navbar from "../../components/Navbar/index";
-import Footer from "../../components/Footer/Footer";
 import { getSubdomainAndDomain, isValidDomain } from "@/lib/utils";
+import dynamic from "next/dynamic";
 
-export const revalidate = 60;
+export const revalidate = 5;
 
 export async function generateMetadata({
   params,
@@ -24,6 +21,7 @@ export async function generateMetadata({
   ) {
     data = await getSiteData(domain);
   }
+
   if (!data) {
     return null;
   }
@@ -77,7 +75,7 @@ export default async function SiteLayout({
   children: ReactNode;
 }) {
   const domain = decodeURIComponent(params.domain);
-  let data;
+  let siteData;
   const isCustomDomain =
     !domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
     process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true";
@@ -89,21 +87,19 @@ export default async function SiteLayout({
     !domain.endsWith(".png") &&
     isValidDomain(domain)
   ) {
-    data = await getSiteData(domain, isCustomDomain);
+    siteData = await getSiteData(domain, isCustomDomain);
   }
 
-  if (!data) {
+  if (!siteData) {
     notFound();
   }
+  const LayoutComponent = dynamic(() => import("../(models)/model1/layout"));
 
   return (
-    <html lang="fr">
-      <body>
-        <Navbar siteData={data} />
-        {children}
-        <Footer siteData={data} allPages={allPages} />
-      </body>
-      <GoogleAnalytics gaId="G-XYZ" />
-    </html>
+    <LayoutComponent
+      children={children}
+      siteData={siteData}
+      allPages={allPages}
+    />
   );
 }

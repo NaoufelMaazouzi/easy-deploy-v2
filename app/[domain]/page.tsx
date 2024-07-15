@@ -1,15 +1,10 @@
 import { notFound } from "next/navigation";
 import { getSiteData, fetchSitesWithFilter } from "@/lib/utils/fetchers";
-
-import Banner from "../../components/Banner/index";
-import Features from "../../components/Features/index";
-import Services from "../../components/Services/index";
-import CtaBanner from "@/components/ctaBanner";
 import { isValidDomain } from "@/lib/utils";
-import Faq from "@/components/Faq";
 import { parsePhoneNumber } from "libphonenumber-js";
+import dynamic from "next/dynamic";
 
-export const revalidate = 60;
+export const revalidate = 5;
 
 export async function generateStaticParams() {
   const allSites = await fetchSitesWithFilter("sites_without_users");
@@ -50,14 +45,7 @@ export default async function SiteHomePage({
       parsePhoneNumber(siteData.contactPhone)?.formatNational() ||
       siteData.contactPhone;
   }
+  const PageComponent = dynamic(() => import("../(models)/model1/page"));
 
-  return (
-    <main>
-      <Banner phoneNumberParsed={phoneNumberParsed} siteData={siteData} />
-      <Features phoneNumberParsed={phoneNumberParsed} />
-      <Services />
-      <CtaBanner phoneNumberParsed={phoneNumberParsed} />
-      <Faq phoneNumberParsed={phoneNumberParsed} />
-    </main>
-  );
+  return <PageComponent siteData={siteData} />;
 }

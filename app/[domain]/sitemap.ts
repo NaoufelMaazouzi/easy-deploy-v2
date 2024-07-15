@@ -3,7 +3,7 @@ import { fetchPagesBySubdomain, getSiteData } from "@/lib/utils/fetchers";
 import { MetadataRoute } from "next";
 import { headers } from "next/headers";
 
-export const revalidate = 30;
+export const revalidate = 5;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headersList = headers();

@@ -8,7 +8,7 @@ import { isValidDomain } from "@/lib/utils";
 import Image from "next/image";
 import MentionsLegales from "@/components/mentionsLegales";
 
-export const revalidate = 60;
+export const revalidate = 5;
 
 export async function generateMetadata({
   params,

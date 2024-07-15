@@ -306,11 +306,11 @@ export default function SiteSettingsIndex({
 
             <Avatar className="w-24 h-24">
               <AvatarImage src={preview} />
-              <AvatarFallback>BU</AvatarFallback>
+              <AvatarFallback>FAVICON</AvatarFallback>
             </Avatar>
             <FormField
               control={control}
-              name="favicon"
+              {...register("favicon")}
               render={({ field: { onChange, value, ...rest } }) => (
                 <>
                   <FormItem>
