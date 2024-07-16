@@ -1,7 +1,7 @@
 "use client";
 import { Disclosure } from "@headlessui/react";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import Drawer from "./Drawer";
 import Drawerdata from "./Drawerdata";
@@ -26,10 +26,16 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Navbar = ({ siteData }: { siteData: SitesWithoutUsers }) => {
+const Navbar = ({
+  siteData,
+  dynamicStyle,
+}: {
+  siteData: SitesWithoutUsers;
+  dynamicStyle: DynamicStyle;
+}) => {
   const { slug } = useParams() as { slug?: string };
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   let phoneNumberParsed: string | undefined;
   if (siteData.contactPhone) {
     phoneNumberParsed = parsePhoneNumber(
@@ -95,21 +101,15 @@ const Navbar = ({ siteData }: { siteData: SitesWithoutUsers }) => {
               <div className="gap-6 hidden lg:flex">
                 <div className="flex items-center gap-2">
                   <button
-                    className="gradient-45 flex items-center border w-full md:w-auto mt-5 md:mt-0 justify-center rounded-full text-xl font-medium py-5 px-10 text-white bg-pink hover:text-pink hover:bg-white space-x-2"
+                    className="flex items-center border w-full md:w-auto mt-5 md:mt-0 justify-center rounded-full text-xl font-medium py-5 px-10 text-white hover:text-pink hover:bg-white space-x-2"
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
+                    style={
+                      !isHovered
+                        ? dynamicStyle.gradientStyle
+                        : dynamicStyle.linkStyle
+                    }
                   >
-                    <Image
-                      src={
-                        isHovered
-                          ? "/images/Navbar/phone.svg"
-                          : "/images/Navbar/phone-white.svg"
-                      }
-                      alt="phone-image"
-                      title="phone-image"
-                      width={19}
-                      height={19}
-                    />
                     <a
                       href={`tel:${phoneNumberParsed}`}
                       className="flex items-center"

@@ -2,7 +2,13 @@
 import Navbar from "./Navbar";
 import React, { useEffect } from "react";
 
-const Navbarin = ({ siteData }: { siteData: SitesWithoutUsers }) => {
+const Navbarin = ({
+  siteData,
+  dynamicStyle,
+}: {
+  siteData: SitesWithoutUsers;
+  dynamicStyle: DynamicStyle;
+}) => {
   useEffect(() => {
     // The debounce function receives our function as a parameter
     const debounce = (fn: Function) => {
@@ -38,7 +44,7 @@ const Navbarin = ({ siteData }: { siteData: SitesWithoutUsers }) => {
   }, []);
   return (
     <>
-      <Navbar siteData={siteData} />
+      <Navbar siteData={siteData} dynamicStyle={dynamicStyle} />
     </>
   );
 };

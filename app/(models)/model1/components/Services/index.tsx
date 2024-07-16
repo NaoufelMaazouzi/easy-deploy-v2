@@ -3,7 +3,13 @@ import Image from "next/image";
 import { Fade } from "react-awesome-reveal";
 import { ServiceData, data } from "../../data";
 
-const Services = ({ siteContent }: { siteContent: ServiceData }) => {
+const Services = ({
+  siteContent,
+  dynamicStyle,
+}: {
+  siteContent: ServiceData;
+  dynamicStyle: DynamicStyle;
+}) => {
   const {
     firstServicesH2,
     firstServicesH3,
@@ -44,7 +50,10 @@ const Services = ({ siteContent }: { siteContent: ServiceData }) => {
               damping={1e-1}
               triggerOnce={true}
             >
-              <h2 className="text-pink text-lg font-normal mb-3 ls-51 uppercase text-start">
+              <h2
+                className="text-lg font-normal mb-3 ls-51 uppercase text-start"
+                style={dynamicStyle.linkStyle}
+              >
                 {firstServicesH2}
               </h2>
             </Fade>
@@ -84,7 +93,10 @@ const Services = ({ siteContent }: { siteContent: ServiceData }) => {
               damping={1e-1}
               triggerOnce={true}
             >
-              <h2 className="text-lightgrey text-pink text-lg font-normal mb-3 ls-51 uppercase text-start">
+              <h2
+                className="text-lightgrey text-lg font-normal mb-3 ls-51 uppercase text-start"
+                style={dynamicStyle.linkStyle}
+              >
                 {secondServicesH2}
               </h2>
             </Fade>

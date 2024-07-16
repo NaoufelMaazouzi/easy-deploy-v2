@@ -46,6 +46,7 @@ import {
 import { PhoneInput } from "@/components/phone-input";
 import { CreateSiteResult } from "@/lib/utils/types";
 import { generateByIA, handleAppendInArray, showAlert } from "@/lib/utils";
+import { GradientPicker } from "@/components/colorPicker";
 
 export default function CreateSitePage() {
   const router = useRouter();
@@ -54,6 +55,9 @@ export default function CreateSitePage() {
   const [loadingAI, setLoadingAI] = useState(false);
   const [inputServices, setInputServices] = useState({ name: "" });
   const [selectedServices, setSelectedServices] = useState([{ name: "" }]);
+  const [background, setBackground] = useState(
+    "linear-gradient(45deg, #ef709b, #f09433)"
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -597,6 +601,37 @@ export default function CreateSitePage() {
                   <FormItem>
                     <FormLabel>Votre email de contact</FormLabel>
                     <Input {...field} />
+                    <FormMessage />
+                  </FormItem>
+                </div>
+              )}
+            />
+
+            <FormField
+              control={control}
+              {...register("siteColor")}
+              render={({ field }) => (
+                <div className="flex flex-col space-y-2">
+                  <FormItem>
+                    <FormLabel>
+                      Couleur principale de votre site (sera utilisée pour les
+                      boutons, les liens etc)
+                    </FormLabel>
+                    <FormControl>
+                      <div
+                        className="w-full h-full preview flex min-h-[150px] justify-center p-10 items-center rounded !bg-cover !bg-center transition-all"
+                        style={{ background }}
+                      >
+                        <GradientPicker
+                          background={background}
+                          setBackground={(background) => {
+                            setValue("siteColor", background);
+                            return setBackground(background);
+                          }}
+                          withImages={false}
+                        />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 </div>

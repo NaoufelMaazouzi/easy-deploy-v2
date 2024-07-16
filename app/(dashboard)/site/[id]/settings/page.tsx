@@ -25,6 +25,7 @@ import { PhoneInput } from "@/components/phone-input";
 import { SearchBar } from "@/components/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SafeParseReturnType } from "zod";
+import { GradientPicker } from "@/components/colorPicker";
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
@@ -56,7 +57,7 @@ export default function SiteSettingsIndex({
   const [siteData, setSiteData] = useState<any>(null);
   const [loadingUpdateSite, setLoadingUpdateSite] = useState(false);
   const [preview, setPreview] = useState("");
-
+  const [background, setBackground] = useState("");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -69,6 +70,7 @@ export default function SiteSettingsIndex({
       try {
         const data = await getSiteById(params.id);
         setSiteData(data);
+        setBackground(data.siteColor);
         setPreview(
           `https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/public/images/${data.favicon}`
         );
@@ -331,6 +333,37 @@ export default function SiteSettingsIndex({
                     <FormMessage />
                   </FormItem>
                 </>
+              )}
+            />
+
+            <FormField
+              control={control}
+              {...register("siteColor")}
+              render={({ field }) => (
+                <div className="flex flex-col space-y-2">
+                  <FormItem>
+                    <FormLabel>
+                      Couleur principale de votre site (sera utilisée pour les
+                      boutons, les liens etc)
+                    </FormLabel>
+                    <FormControl>
+                      <div
+                        className="w-full h-full preview flex min-h-[150px] justify-center p-10 items-center rounded !bg-cover !bg-center transition-all"
+                        style={{ background }}
+                      >
+                        <GradientPicker
+                          background={background}
+                          setBackground={(background) => {
+                            setValue("siteColor", background);
+                            return setBackground(background);
+                          }}
+                          withImages={false}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                </div>
               )}
             />
           </div>

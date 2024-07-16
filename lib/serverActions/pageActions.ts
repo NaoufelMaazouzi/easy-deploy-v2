@@ -206,7 +206,7 @@ export async function getPageById(id: number | string) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!data || user?.id !== data.user_id || error) {
+    if (!data || user?.id !== data.site_user_id || error) {
       notFound();
     }
     return data;

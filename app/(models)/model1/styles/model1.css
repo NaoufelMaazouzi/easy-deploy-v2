@@ -71,7 +71,7 @@ html:not([data-scroll="0"]) .navbar {
 .hover-underline {
   display: inline-flex;
   position: relative;
-  color: #df6751;
+  color: rgba(139, 139, 139, 0.774);
   justify-content: center;
   align-items: center;
 }
@@ -84,7 +84,7 @@ html:not([data-scroll="0"]) .navbar {
   height: 1px;
   bottom: 0;
   left: 0;
-  background-color: #df6751;
+  background-color: rgba(139, 139, 139, 0.774);
   transform-origin: bottom right;
   transition: transform 0.25s ease-out;
 }

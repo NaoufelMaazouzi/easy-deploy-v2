@@ -7,9 +7,11 @@ import { ServiceData, data } from "../../data";
 const Work = ({
   phoneNumberParsed,
   siteContent,
+  dynamicStyle,
 }: {
   phoneNumberParsed: string | undefined;
   siteContent: ServiceData;
+  dynamicStyle: DynamicStyle;
 }) => {
   const { featuresTitle, featuresData } = siteContent;
   return (
@@ -23,7 +25,10 @@ const Work = ({
             damping={1e-1}
             triggerOnce={true}
           >
-            <p className="text-pink text-lg font-normal mb-3 ls-51 uppercase">
+            <p
+              className="text-lg font-normal mb-3 ls-51 uppercase"
+              style={dynamicStyle.linkStyle}
+            >
               Nos avantages
             </p>
           </Fade>
@@ -67,7 +72,10 @@ const Work = ({
                 </p>
                 <div className="flex items-center justify-center">
                   <a href={`tel:${phoneNumberParsed}`}>
-                    <p className="text-center text-lg font-medium text-pink mt-2 hover-underline">
+                    <p
+                      className="text-center text-lg font-medium mt-2 hover-underline"
+                      style={dynamicStyle.linkStyle}
+                    >
                       {items.link}
                       <ChevronRightIcon width={20} height={20} />
                     </p>

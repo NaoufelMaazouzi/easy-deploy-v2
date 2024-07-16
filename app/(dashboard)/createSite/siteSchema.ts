@@ -53,7 +53,9 @@ export const formSchema = z.object({
     required_error: "Le sous-domaine est requis",
     invalid_type_error: "Le sous-domaine doit être une chaîne de caractères",
   }),
-  model: z.string(),
+  model: z.string({
+    required_error: "Choisissez un modèle",
+  }),
   description: z
     .string({
       required_error: "La description est requise",
@@ -102,6 +104,9 @@ export const formSchema = z.object({
       message: "Le fichier doit être une image valide",
     })
     .optional(),
+  siteColor: z.string({
+    required_error: "Choisissez une couleur",
+  }),
 });
 
 type FormSchemaArrayKeys = "secondaryActivityCities";

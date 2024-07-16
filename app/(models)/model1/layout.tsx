@@ -4,14 +4,20 @@ import "./styles/model1.css";
 import { notFound } from "next/navigation";
 import Navbar from "./components/Navbar/index";
 import Footer from "./components/Footer/Footer";
-import { getSubdomainAndDomain, isValidDomain } from "@/lib/utils";
+import {
+  calculateIntermediateColor,
+  extractColorsFromGradient,
+  getSubdomainAndDomain,
+  hexToRgba,
+  isValidDomain,
+} from "@/lib/utils";
 import { fetchPagesBySubdomain, getSiteData } from "@/lib/utils/fetchers";
 
 export const revalidate = 5;
 
 export default async function SiteLayout({
   children,
-  params
+  params,
 }: {
   children: ReactNode;
   params: { domain: string };
@@ -35,9 +41,53 @@ export default async function SiteLayout({
   if (!siteData) {
     notFound();
   }
+
+  let dynamicStyle: DynamicStyle = {
+    gradientStyle: {
+      backgroundColor: "",
+    },
+    linkStyle: {
+      color: "",
+    },
+    backgroundColor: {
+      backgroundColor: "",
+    },
+  };
+  if (siteData.siteColor && siteData.siteColor.startsWith("linear-gradient")) {
+    const extractedColors = extractColorsFromGradient(siteData.siteColor);
+    const intermediateColor = calculateIntermediateColor(
+      extractedColors[0],
+      extractedColors[1],
+      0.5
+    );
+    dynamicStyle = {
+      gradientStyle: {
+        backgroundImage: siteData.siteColor,
+      },
+      linkStyle: {
+        color: intermediateColor,
+      },
+      backgroundColor: {
+        backgroundColor: hexToRgba(intermediateColor, 0.2),
+      },
+    };
+  } else if (siteData.siteColor) {
+    dynamicStyle = {
+      gradientStyle: {
+        backgroundColor: siteData.siteColor,
+      },
+      linkStyle: {
+        color: siteData.siteColor,
+      },
+      backgroundColor: {
+        backgroundColor: hexToRgba(siteData.siteColor, 0.2),
+      },
+    };
+  }
+
   return (
     <>
-      <Navbar siteData={siteData} />
+      <Navbar siteData={siteData} dynamicStyle={dynamicStyle} />
       {children}
       <Footer siteData={siteData} allPages={allPages} />
       <GoogleAnalytics gaId="G-XYZ" />

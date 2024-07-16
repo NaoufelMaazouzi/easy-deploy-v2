@@ -2,16 +2,20 @@
 import Image from "next/image";
 import { Fade } from "react-awesome-reveal";
 import { ServiceData, data } from "../../data";
+import { useState } from "react";
 
 const Banner = ({
   siteData,
   phoneNumberParsed,
   siteContent,
+  dynamicStyle,
 }: {
   siteData: SitesWithoutUsers;
   phoneNumberParsed: string | undefined;
   siteContent: ServiceData;
+  dynamicStyle: DynamicStyle;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   const { bannerH1, bannerImgSrc } = siteContent;
 
   return (
@@ -49,7 +53,16 @@ const Banner = ({
               triggerOnce={true}
             >
               <div className="md:flex align-middle justify-center lg:justify-start">
-                <button className="gradient-45 flex border w-full md:w-auto mt-5 md:mt-0 justify-center rounded-full text-xl font-medium items-center py-5 px-10 text-white bg-pink hover:text-pink hover:bg-white">
+                <button
+                  className="flex items-center border w-full md:w-auto mt-5 md:mt-0 justify-center rounded-full text-xl font-medium py-5 px-10 text-white hover:bg-white space-x-2"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  style={
+                    !isHovered
+                      ? dynamicStyle.gradientStyle
+                      : dynamicStyle.linkStyle
+                  }
+                >
                   <a href={`tel:${phoneNumberParsed}`}>{phoneNumberParsed}</a>
                 </button>
               </div>

@@ -95,6 +95,14 @@ export const formatLocationAddress = (city: any) => {
   return formattedAddress;
 };
 
+export const extractCityName = (location: string): string => {
+  const match = location.match(/^(.+?)\s*\(/);
+  if (match) {
+    return match[1].trim();
+  }
+  return location;
+};
+
 export const getSubdomainAndDomain = (url: string) => {
   // Remove "http://", "https://" and everything after the first "/" (if present)
   let domain = url.replace(/^https?:\/\//, "").split("/")[0];
@@ -321,4 +329,61 @@ export const unflattenObject = (data: any): any => {
   });
 
   return result;
+};
+
+export const calculateIntermediateColor = (
+  color1: string,
+  color2: string,
+  position: number
+): string => {
+  function hexToRgb(hex: string): number[] {
+    return [
+      parseInt(hex.substring(1, 3), 16),
+      parseInt(hex.substring(3, 5), 16),
+      parseInt(hex.substring(5, 7), 16),
+    ];
+  }
+
+  function rgbToHex(rgb: number[]): string {
+    return `#${rgb.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+  }
+
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
+
+  const intermediateRgb = rgb1.map((c1, index) => {
+    const c2 = rgb2[index];
+    return Math.round((1 - position) * c1 + position * c2);
+  });
+
+  return rgbToHex(intermediateRgb);
+};
+
+export const extractColorsFromGradient = (gradient: string): string[] => {
+  const colorRegex = /#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g;
+  const matches = gradient.match(colorRegex);
+
+  if (matches && matches.length >= 2) {
+    return [matches[0], matches[1]];
+  } else {
+    throw new Error("Invalid gradient format or not enough colors found");
+  }
+};
+
+export const hexToRgba = (hex: string, opacity: number): string => {
+  hex = hex.replace(/^#/, "");
+
+  if (hex.length === 3) {
+    hex = hex
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 };

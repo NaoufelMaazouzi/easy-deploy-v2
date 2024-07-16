@@ -19,4 +19,28 @@ declare global {
   interface Services {
     name: string;
   }
+
+  type DynamicStyle =
+    | {
+        gradientStyle: {
+          backgroundImage: string;
+        };
+        linkStyle: {
+          color: string;
+        };
+        backgroundColor: {
+          backgroundColor: string;
+        };
+      }
+    | {
+        gradientStyle: {
+          backgroundColor: string;
+        };
+        linkStyle: {
+          color: string;
+        };
+        backgroundColor: {
+          backgroundColor: string;
+        };
+      };
 }

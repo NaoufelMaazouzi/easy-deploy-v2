@@ -58,7 +58,7 @@ export function withPageAuth(action: any) {
       .select("*")
       .eq("id", pageId)
       .single();
-    if (!user || page.user_id !== user?.id) {
+    if (!user || page.site_user_id !== user?.id) {
       return {
         status: "error",
         title: "Erreur",
