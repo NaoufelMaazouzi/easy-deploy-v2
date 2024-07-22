@@ -5,6 +5,7 @@ import {
 } from "@/lib/utils/types";
 
 export const addDomainToVercel = async (domain: string) => {
+  console.log("addDomainToVercel", domain);
   return await fetch(
     `https://api.vercel.com/v10/projects/${
       process.env.PROJECT_ID_VERCEL
@@ -25,7 +26,10 @@ export const addDomainToVercel = async (domain: string) => {
         }),
       }),
     }
-  ).then((res) => res.json());
+  ).then((res) => {
+    console.log("OKKKKKKK", res.json());
+    return res.json();
+  });
 };
 
 export const removeDomainFromVercelProject = async (domain: string) => {

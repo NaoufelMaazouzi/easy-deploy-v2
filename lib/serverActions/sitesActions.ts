@@ -72,6 +72,7 @@ export async function createSite(
         addDomainToVercel(siteCustomDomain),
         // Optional: add www subdomain as well and redirect to apex domain
         addDomainToVercel(`www.${siteCustomDomain}`),
+        addDomainToVercel(`*.${siteCustomDomain}`),
       ]);
     }
     const {
