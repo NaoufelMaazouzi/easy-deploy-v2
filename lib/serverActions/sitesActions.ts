@@ -50,7 +50,10 @@ export async function createSite(
     const supabase = createSupabaseServerComponentClient();
     const { data: createdSite, error: createdSiteError } = await supabase
       .from("sites")
-      .insert(parsed.data)
+      .insert({
+        ...parsed.data,
+        favicon: "defaultFavicon.png",
+      })
       .select();
 
     if (createdSiteError || !createdSite?.length) {
@@ -316,8 +319,9 @@ export const updateSite = withSiteAuth(
       }
       let updatedData, updatedDataError;
       const supabase = createSupabaseServerComponentClient();
-
-      if (parsed.data.favicon) {
+      const faviconIsFile =
+        parsed.data.favicon && parsed.data.favicon instanceof File;
+      if (parsed.data.favicon && faviconIsFile) {
         const { error } = await supabase.storage
           .from("images")
           .upload(
@@ -426,9 +430,10 @@ export const updateSite = withSiteAuth(
         .from("sites")
         .update({
           ...parsed.data,
-          favicon: parsed.data.favicon
-            ? `${site.id}/${parsed.data.favicon.name}`
-            : "",
+          ...(parsed.data.favicon &&
+            faviconIsFile && {
+              favicon: `${site.id}/${parsed.data.favicon.name}`,
+            }),
         })
         .eq("id", site.id)
         .select());

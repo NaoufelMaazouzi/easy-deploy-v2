@@ -26,19 +26,31 @@ import { SearchBar } from "@/components/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SafeParseReturnType } from "zod";
 import { GradientPicker } from "@/components/colorPicker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function getImageData(event: ChangeEvent<HTMLInputElement>) {
   const file = event.target.files![0];
   if (file && file.size > MAX_FILE_SIZE) {
+    event.target.value = "";
     toast.error("La taille du fichier ne doit pas dépasser 1 Mo.");
     return { files: "", displayUrl: "" };
   }
-  // FileList is immutable, so we need to create a new one
+  if (file && !ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    event.target.value = "";
+    toast.error("Seuls les fichiers .jpg, .jpeg, .png et .webp sont acceptés.");
+    return { files: "", displayUrl: "" };
+  }
   const dataTransfer = new DataTransfer();
 
-  // Add newly uploaded images
   Array.from(event.target.files!).forEach((image) =>
     dataTransfer.items.add(image)
   );
@@ -47,6 +59,12 @@ function getImageData(event: ChangeEvent<HTMLInputElement>) {
 
   const displayUrl = URL.createObjectURL(file);
   return { files, displayUrl };
+}
+
+async function fetchFileFromUrl(url: string, filename: string): Promise<File> {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type });
 }
 
 export default function SiteSettingsIndex({
@@ -71,9 +89,12 @@ export default function SiteSettingsIndex({
         const data = await getSiteById(params.id);
         setSiteData(data);
         setBackground(data.siteColor);
-        setPreview(
-          `https://vuzmqspcbxiughghhmuo.supabase.co/storage/v1/object/public/images/${data.favicon}`
-        );
+
+        const previewUrl = `https://${process.env.NEXT_PUBLIC_SUPABASE_ID}.supabase.co/storage/v1/object/public/images/${data.favicon}`;
+        setPreview(previewUrl);
+
+        const file = await fetchFileFromUrl(previewUrl, data.favicon);
+        setValue("favicon", file);
 
         if (data) {
           for (const [key, value] of Object.entries(data)) {
@@ -162,6 +183,31 @@ export default function SiteSettingsIndex({
                     <FormMessage />
                   </FormItem>
                 </div>
+              )}
+            />
+
+            <FormField
+              control={control}
+              {...register("model")}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Modèle</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisissez le modèle de votre site" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="vtc">Modèle VTC</SelectItem>
+                      <SelectItem value="plombier">Modèle PLOMBIER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
             />
 
@@ -325,8 +371,10 @@ export default function SiteSettingsIndex({
                         {...rest}
                         onChange={(event) => {
                           const { files, displayUrl } = getImageData(event);
-                          setPreview(displayUrl);
-                          onChange(files[0]);
+                          if (files && displayUrl) {
+                            setPreview(displayUrl);
+                            onChange(files[0]);
+                          }
                         }}
                       />
                     </FormControl>
