@@ -26,10 +26,7 @@ export const addDomainToVercel = async (domain: string) => {
         }),
       }),
     }
-  ).then((res) => {
-    console.log("OKKKKKKK", res.json());
-    return res.json();
-  });
+  ).then((res) => res.json());
 };
 
 export const removeDomainFromVercelProject = async (domain: string) => {
