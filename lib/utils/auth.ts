@@ -3,6 +3,7 @@ import {
   formSchema,
 } from "@/app/(dashboard)/createSite/siteSchema";
 import { createSupabaseServerComponentClient } from "@/utils/supabase/server-client";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
 import z from "zod";
 
 export function withSiteAuth(action: any) {
@@ -43,8 +44,8 @@ export function withSiteAuth(action: any) {
 
 export function withPageAuth(action: any) {
   return async (
-    pageId: number | null,
-    formData?: z.infer<typeof formSchema> | FormData,
+    pageId: Number | null,
+    formData?: z.infer<typeof formSchema> | FormData | any,
     key?: string | null,
     successText?: string | null
   ) => {

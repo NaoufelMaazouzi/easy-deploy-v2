@@ -1,4 +1,3 @@
-import { GeistSans } from "geist/font/sans";
 import "@/styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
@@ -19,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={GeistSans.className}>
+    <html lang="fr">
       <body className="bg-background text-foreground">
         <Toaster richColors className="dark:hidden" />
         <Toaster richColors theme="dark" className="hidden dark:block" />

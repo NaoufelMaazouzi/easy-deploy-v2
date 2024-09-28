@@ -10,11 +10,17 @@ import {
   Video,
   X,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Progress } from "./ui/progress";
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
+import { uploadPageMedia } from "@/lib/serverActions/pageActions";
+import { toast } from "sonner";
+// import { loadFfmpeg } from "@/lib/utils/";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL } from "@ffmpeg/util";
+import { screenShot } from "@/lib/utils";
 interface FileUploadProgress {
   progress: number;
   File: File;
@@ -54,9 +60,26 @@ const OtherColor = {
   fillColor: "fill-gray-400",
 };
 
-export default function ImageUpload() {
+const loadFfmpeg = async (): Promise<FFmpeg> => {
+  const ffmpeg = new FFmpeg();
+  const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd";
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+  });
+  return ffmpeg;
+};
+
+export default function ImageUpload({
+  id,
+  callbackFunc,
+}: {
+  id: Number;
+  callbackFunc?: Function;
+}) {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [filesToUpload, setFilesToUpload] = useState<FileUploadProgress[]>([]);
+  const ffmpegRef = useRef<any>(null);
 
   const getFileIconAndColor = (file: File) => {
     if (file.type.includes(FileTypes.Image)) {
@@ -136,6 +159,29 @@ export default function ImageUpload() {
     onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
     cancelSource: CancelTokenSource
   ) => {
+    const ffmpeg_response: FFmpeg = await loadFfmpeg();
+    ffmpegRef.current = ffmpeg_response;
+    const { success, filePath, error } = await screenShot(
+      id,
+      formData,
+      ffmpegRef.current
+    );
+    if (success && filePath && !error) {
+      const { status, text }: { status: "success" | "error"; text: string } =
+        await uploadPageMedia(
+          id,
+          formData,
+          "file",
+          "Fichier uploadé avec succès !"
+        );
+      toast[status](text);
+      if (status === "success" && callbackFunc) {
+        callbackFunc();
+      }
+    } else if (error) {
+      toast.error(error);
+    }
+
     return axios.post(
       `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUD_NAME}/image/upload`,
       formData,
@@ -172,28 +218,28 @@ export default function ImageUpload() {
 
     // cloudinary upload
 
-    // const fileUploadBatch = acceptedFiles.map((file) => {
-    //   const formData = new FormData();
-    //   formData.append("file", file);
-    //   formData.append(
-    //     "upload_preset",
-    //     process.env.NEXT_PUBLIC_UPLOAD_PRESET as string
-    //   );
+    const fileUploadBatch = acceptedFiles.map((file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_UPLOAD_PRESET as string
+      );
 
-    //   const cancelSource = axios.CancelToken.source();
-    //   return uploadImageToCloudinary(
-    //     formData,
-    //     (progressEvent) => onUploadProgress(progressEvent, file, cancelSource),
-    //     cancelSource
-    //   );
-    // });
+      const cancelSource = axios.CancelToken.source();
+      return uploadImageToCloudinary(
+        formData,
+        (progressEvent) => onUploadProgress(progressEvent, file, cancelSource),
+        cancelSource
+      );
+    });
 
-    // try {
-    //   await Promise.all(fileUploadBatch);
-    //   alert("All files uploaded successfully");
-    // } catch (error) {
-    //   console.error("Error uploading files: ", error);
-    // }
+    try {
+      await Promise.all(fileUploadBatch);
+      alert("All files uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading files: ", error);
+    }
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
@@ -228,7 +274,7 @@ export default function ImageUpload() {
         />
       </div>
 
-      {filesToUpload.length > 0 && (
+      {/* {filesToUpload.length > 0 && (
         <div>
           <ScrollArea className="h-40">
             <p className="font-medium my-2 mt-6 text-muted-foreground text-sm">
@@ -316,7 +362,7 @@ export default function ImageUpload() {
             })}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

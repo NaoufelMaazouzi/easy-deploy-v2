@@ -43,4 +43,19 @@ declare global {
           backgroundColor: string;
         };
       };
+
+  interface MediaItem {
+    id: string;
+    title: string;
+    url: string;
+    mimeType: string;
+    isVideo: boolean;
+    thumbnail?: string;
+    width?: number;
+    height?: number;
+  }
+
+  type MediaObject = {
+    [key: string]: MediaItem[];
+  };
 }

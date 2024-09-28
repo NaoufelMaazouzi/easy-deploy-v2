@@ -3,6 +3,9 @@ import { twMerge } from "tailwind-merge";
 import { customAlphabet } from "nanoid";
 import { toast } from "sonner";
 import { generateServices } from "../serverActions/sitesActions";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -386,4 +389,82 @@ export const hexToRgba = (hex: string, opacity: number): string => {
   const b = bigint & 255;
 
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
+export const getMediaItemsByPrefix = (
+  obj: MediaObject,
+  prefix: string
+): MediaItem[] => {
+  let result: MediaItem[] = [];
+
+  for (const key in obj) {
+    if (key.startsWith(prefix)) {
+      result = result.concat(obj[key]);
+    }
+  }
+
+  return result;
+};
+
+function getFileExtension(file_name: string) {
+  const regex = /(?:\.([^.]+))?$/; // Matches the last dot and everything after it
+  const match = regex.exec(file_name);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return ""; // No file extension found
+}
+
+function removeFileExtension(file_name: string) {
+  const lastDotIndex = file_name.lastIndexOf(".");
+  if (lastDotIndex !== -1) {
+    return file_name.slice(0, lastDotIndex);
+  }
+  return file_name; // No file extension found
+}
+
+export const screenShot = async (
+  pageId: Number,
+  formData: FormData,
+  ffmpeg: FFmpeg
+): Promise<{ success: boolean; filePath?: string; error?: string }> => {
+  try {
+    let file: File | null = null;
+    file = formData.get("file") as File;
+    const input = getFileExtension(file.name);
+    const output = removeFileExtension(file.name) + ".jpg";
+    ffmpeg.writeFile(input, await fetchFile(file));
+
+    const ffmpeg_cmd = [
+      "-i",
+      input,
+      "-ss",
+      "00:00:01",
+      "-vframes",
+      "1",
+      output,
+    ];
+
+    await ffmpeg.exec(ffmpeg_cmd);
+
+    const dataTest = (await ffmpeg.readFile(output)) as any;
+    const supabase = createSupabaseBrowserClient();
+    const { data: page, error: error_page } = await supabase
+      .from("pages_with_sites_values")
+      .select("*")
+      .eq("id", pageId)
+      .single();
+    const filePath = `${page.site_id}/${page.id}/thumbnail-${output}`;
+
+    await supabase.storage
+      .from("images")
+      .upload(filePath, Buffer.from(dataTest), {
+        upsert: true,
+        contentType: "image/jpg",
+      });
+    return { success: true, filePath };
+  } catch (error) {
+    console.error("Erreur lors de l'upload de la vidéo", error);
+    return { success: false, error: "Erreur lors de l'upload de la vidéo" };
+  }
 };
